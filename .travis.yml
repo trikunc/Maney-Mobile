@@ -1,0 +1,26 @@
+---
+language: node_js
+node_js:
+  - node
+before_install:
+  - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+  - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq yarn
+cache:
+  yarn: true
+script:
+  - yarn install --frozen-lockfile
+  - npx jest --ci --passWithNoTests
+before_deploy:
+  if ! [[ $TRAVIS_TAG ]]; then
+    git config --local user.name "$USER_NAME" &&
+    git config --local user.email "$USER_EMAIL" &&
+    expo export --public-url https://timivietnam.github.io/monsy;
+  fi
+  #deploy:
+  #  skip_cleanup: true
+  #  provider: script
+  #  script: bash scripts/ci-deploy.sh
+  #  on:
+  #    branch: develop
