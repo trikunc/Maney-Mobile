@@ -1,6 +1,6 @@
 # 🚀 Maney - Manage your daily money
 
-```Project Owner by Budi Santoso
+#### Project Owner by Budi Santoso
 
 ## Expo app
 
