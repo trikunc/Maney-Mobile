@@ -1,6 +1,4 @@
-# 🚀 Monsy - December 2020
-
-[![Build Status](https://travis-ci.com/timivietnam/expo_monsy.svg?token=fdqYgpf1YvC93Nhqybz4&branch=develop)](https://travis-ci.com/timivietnam/expo_monsy)
+# 🚀 Maney - Manage your daily money
 
 ## Expo app
 
