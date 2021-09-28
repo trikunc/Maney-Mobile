@@ -55,10 +55,10 @@ const Login = memo(() => {
   }, [policyCheck]);
 
   const onPolicy = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/policy");
+    WebBrowser.openBrowserAsync("https://codelink.ai/privacy-policy");
   };
   const onTerm = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/term");
+    WebBrowser.openBrowserAsync("https://codelink.ai/terms-conditions");
   };
 
   useEffect(() => {
@@ -85,8 +85,8 @@ const Login = memo(() => {
   const signInWithFacebookAsync = async () => {
     try {
       await Facebook.initializeAsync({
-        appId: "861336254618905",
-        appName: "Monsy",
+        appId: "847156225947307",
+        appName: "Maney",
       });
 
       const result = await Facebook.logInWithReadPermissionsAsync({

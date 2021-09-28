@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig)
 
 // Log error
 Sentry.init({
-  dsn: "https://be700e1df8104cb28479551ad9ff6849@o489325.ingest.sentry.io/5551375",
+  dsn: "https://b1d17a2a1fd241f9afed9b94af99ff46@o1016961.ingest.sentry.io/5982475",
   enableInExpoDevelopment: true,
   debug: true,
 });
