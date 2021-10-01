@@ -67,17 +67,11 @@ const Login = memo(() => {
   }, []);
 
   const checkLogin = async (firebaseToken: string) => {
-    console.log('===Check Login Masuk===')
     const { user, token, typeWallets, categories, currencies } =
     await apiSignIn({
       firebaseToken,
       isGuest: false,
     });
-    console.log('===Check Login Masuk=== user==', user)
-    console.log('===Check Login Masuk=== token==', token)
-    console.log('===Check Login Masuk=== typeWallets==', typeWallets)
-    console.log('===Check Login Masuk=== categories==', categories)
-    console.log('===Check Login Masuk=== currencies==', currencies)
     await saveToken(token);
     await saveGuestFlag(false);
 
@@ -101,28 +95,6 @@ const Login = memo(() => {
 
       const { token, type } = result;
 
-      // if (type === 'success') {
-      //   // Get the user's name using Facebook's Graph API
-      //   // fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email,picture.height(500)`)
-      //   //   .then(response => console.log(response.json()))
-
-      //   // Build Firebase credential with the Facebook access token.
-      //   const credential = firebase.auth.FacebookAuthProvider.credential(token);
-
-      //   // Sign in with credential from the Facebook user.
-      //   firebase
-      //   .auth()
-      //   .signInWithCredential(credential)
-      //   .catch(error => {
-      //     console.error(error);
-      //     // Handle Errors here.
-      //   });
-         
-      // }
-
-      console.log('result:', result);
-      // console.log('result:', result);
-
       if (result.type === "success") {
         setLoading(true);
 
@@ -137,14 +109,11 @@ const Login = memo(() => {
         if (!currentUser) {
           return;
         }
-
-        console.log('currentUser==', currentUser)
         
         const firebaseToken = await currentUser
         .getIdToken()
         .then((data) => data);
         
-        console.log('firebaseToken==', firebaseToken)
         await checkLogin(firebaseToken);
 
         setLoading(false);

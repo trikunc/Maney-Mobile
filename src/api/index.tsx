@@ -1,17 +1,13 @@
 import { getToken } from "../utils/store/Store";
 
 /*** MUST-CONFIG ***/
-// export const SERVER_ADDRESS = "http://localhost:3000";
-export const SERVER_ADDRESS = "http://127.0.0.1:3000";
+// export const SERVER_ADDRESS = "http://localhost:3000"; // emulator
+export const SERVER_ADDRESS = "http://192.168.8.166:3000"; // expo go (real device)
 
 export const BEARER = "Bearer";
 export const API_ENDPOINT = SERVER_ADDRESS + "/api/";
 
 const getParam = (method: string, data: any, token = null) => {
-  console.log('===getparam===',)
-  console.log('===getparam===method==',method)
-  console.log('===getparam===data==',data)
-  console.log('===getparam===token==',token)
   return {
     method: method,
     headers: {
@@ -44,15 +40,13 @@ export async function request(
   navigate_token: any
 ) {
   try {
-    console.log('request get token')
     const token = navigate_token !==null ? navigate_token : (await getToken());
-    console.log('==request token==', token);
     console.log('==API_ENDPOINT==', API_ENDPOINT + endpoint);
     let response = await fetch(
       API_ENDPOINT + endpoint,
       getParam(method, body, token)
     );
-    console.log('===response===', response) // NOT WORKIING
+
     console.log("REQUEST", method + " : " + API_ENDPOINT + endpoint);
     let data = await response.json();
     return handleError(data);
