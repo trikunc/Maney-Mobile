@@ -1,13 +1,13 @@
 {
   "expo": {
     "name": "Maney",
-    "slug": "Manage your daily money",
+    "slug": "maney-app",
     "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "facebookScheme": "<your-facebookScheme>",
-    "facebookAppId": "<your-facebookAppId>",
-    "facebookDisplayName": "<your-app-name>",
+    "facebookScheme": "fb847156225947307",
+    "facebookAppId": "847156225947307",
+    "facebookDisplayName": "Maney",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,12 +16,10 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "usesAppleSignIn": true,
-      "bundleIdentifier": "com.maney.id",
+      "bundleIdentifier": "com.maney.id.app",
       "supportsTablet": true,
       "buildNumber": "2.2.1",
       "config": {
@@ -40,10 +38,10 @@
         "backgroundColor": "#FFFFFF"
       },
       "config": {
-        "googleMobileAdsAppId": "your-admob-ads-id",
+        "googleMobileAdsAppId": "ca-app-pub-3178887708370866~1543494537",
         "googleSignIn": {
-          "apiKey": "<your-apiKey>",
-          "certificateHash": "<your-certificateHash>"
+          "apiKey": "AIzaSyAG5p7oELZQ5GW9PqgCXN57NnK-JXQO7C0",
+          "certificateHash": "8E:BF:B2:E8:C9:6A:5E:CC:AF:D0:CF:53:56:DC:1F:41:8F:CE:1F:36"
         }
       }
     },

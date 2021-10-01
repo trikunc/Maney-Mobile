@@ -20,10 +20,10 @@ export const GET_PREMIUM = [
 
 export const LOGIN_DATA = [
   {
-    image: require("@assets/Login/Monsy.png"),
-    title: "Welcome to Monsy",
+    image: require("@assets/Login/Maney.png"),
+    title: "Welcome to Maney",
     description:
-      "Monsy is a simple and smart free mobile application that helps you manage your daily cash flow.",
+      "Maney is a simple and smart free mobile application that helps you manage your daily cash flow.",
   },
   {
     image: require("@assets/Login/onboarding1.png"),

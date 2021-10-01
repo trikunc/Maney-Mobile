@@ -55,10 +55,10 @@ const Login = memo(() => {
   }, [policyCheck]);
 
   const onPolicy = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/policy");
+    WebBrowser.openBrowserAsync("https://codelink.ai/privacy-policy");
   };
   const onTerm = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/term");
+    WebBrowser.openBrowserAsync("https://codelink.ai/terms-conditions");
   };
 
   useEffect(() => {
@@ -67,11 +67,17 @@ const Login = memo(() => {
   }, []);
 
   const checkLogin = async (firebaseToken: string) => {
+    console.log('===Check Login Masuk===')
     const { user, token, typeWallets, categories, currencies } =
-      await apiSignIn({
-        firebaseToken,
-        isGuest: false,
-      });
+    await apiSignIn({
+      firebaseToken,
+      isGuest: false,
+    });
+    console.log('===Check Login Masuk=== user==', user)
+    console.log('===Check Login Masuk=== token==', token)
+    console.log('===Check Login Masuk=== typeWallets==', typeWallets)
+    console.log('===Check Login Masuk=== categories==', categories)
+    console.log('===Check Login Masuk=== currencies==', currencies)
     await saveToken(token);
     await saveGuestFlag(false);
 
@@ -85,13 +91,37 @@ const Login = memo(() => {
   const signInWithFacebookAsync = async () => {
     try {
       await Facebook.initializeAsync({
-        appId: "861336254618905",
-        appName: "Monsy",
+        appId: "847156225947307",
+        appName: "Maney",
       });
 
       const result = await Facebook.logInWithReadPermissionsAsync({
         permissions: ["public_profile"],
       });
+
+      const { token, type } = result;
+
+      // if (type === 'success') {
+      //   // Get the user's name using Facebook's Graph API
+      //   // fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email,picture.height(500)`)
+      //   //   .then(response => console.log(response.json()))
+
+      //   // Build Firebase credential with the Facebook access token.
+      //   const credential = firebase.auth.FacebookAuthProvider.credential(token);
+
+      //   // Sign in with credential from the Facebook user.
+      //   firebase
+      //   .auth()
+      //   .signInWithCredential(credential)
+      //   .catch(error => {
+      //     console.error(error);
+      //     // Handle Errors here.
+      //   });
+         
+      // }
+
+      console.log('result:', result);
+      // console.log('result:', result);
 
       if (result.type === "success") {
         setLoading(true);
@@ -108,10 +138,13 @@ const Login = memo(() => {
           return;
         }
 
+        console.log('currentUser==', currentUser)
+        
         const firebaseToken = await currentUser
-          .getIdToken()
-          .then((data) => data);
-
+        .getIdToken()
+        .then((data) => data);
+        
+        console.log('firebaseToken==', firebaseToken)
         await checkLogin(firebaseToken);
 
         setLoading(false);
@@ -119,6 +152,7 @@ const Login = memo(() => {
         return { cancelled: true };
       }
     } catch (e) {
+      console.error(e);
       setLoading(false);
       // Handle error
       Alert.alert("Login facebook failed");
