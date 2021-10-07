@@ -18,7 +18,6 @@ const BottomMainTab = memo(() => {
         showLabel: false,
         activeTintColor: colors.emerald,
         inactiveTintColor: colors.grey3,
-        // headerShown: false 
       }}
       initialRouteName={ROUTES.Dashboard}
     >
