@@ -23,6 +23,7 @@ const CreateAssetsBalance = memo(({ route }: any) => {
 
   const [walletBalance, setWalletBalance] = useState<any>(0);
   const [walletTmpBalance, setWalletTmpBalance] = useState<any>("");
+  const [isEnter, setIsEnter] = useState<any>(false);
 
   const [currency, setCurrency] = useState<any>("USD");
   const [goBack, setGoBack] = useState<string>("");
@@ -43,13 +44,14 @@ const CreateAssetsBalance = memo(({ route }: any) => {
     const textDoneStyle = { color: colors.purplePlum };
 
     const onDone = () => {
+      console.log('balance:', walletBalance)
       const balance = { balance: walletBalance };
       navigation.navigate(goBack, balance);
     };
 
     navigation.setOptions({
       headerRight: () => (
-        <HeaderButton
+        isEnter && <HeaderButton
           onPress={onDone}
           titleStyle={textDoneStyle}
           title={"Done"}
@@ -76,6 +78,7 @@ const CreateAssetsBalance = memo(({ route }: any) => {
 
   const onAcceptKeyboard = useCallback(() => {
     setVisible(false);
+    setIsEnter(true);
   }, []);
 
   return (

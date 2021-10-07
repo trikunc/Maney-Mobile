@@ -42,7 +42,10 @@ const CreateAssets = memo(({ route }: any) => {
     if (route.params?.name) {
       setNameAccount(route.params?.name);
     }
-    setBalance(route.params?.balance || 0);
+    if (route.params?.balance) {
+      setBalance(route.params?.balance);
+      
+    }
     if (route.params?.typeWallet) {
       setWalletType(route.params?.typeWallet);
     }
@@ -114,6 +117,13 @@ const CreateAssets = memo(({ route }: any) => {
           value={nameAccount}
           placeholder={"Name Account"}
         />
+          <AnimatedInput
+            onPress={onCreateAssetsType}
+            imageIcon={walletType?.icon ? IMAGE_ICON[`${walletType?.icon}`] : IMAGE_ICON.wallet}
+            value={walletType?.name ? walletType.name : ""}
+            placeholder={"Type"}
+            nonBorder={true}
+          />
         {
           currency ?
             <AnimatedInput
@@ -125,13 +135,6 @@ const CreateAssets = memo(({ route }: any) => {
             />
             : null
         }
-        <AnimatedInput
-          onPress={onCreateAssetsType}
-          imageIcon={walletType?.icon ? IMAGE_ICON[`${walletType?.icon}`] : IMAGE_ICON.wallet}
-          value={walletType?.name ? walletType.name : ""}
-          placeholder={"Type"}
-          nonBorder={true}
-        />
       </View>
       {buttonCreate()}
       <Modal visible={isLoading} statusBarTranslucent={true} transparent={true}>
