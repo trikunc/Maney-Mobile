@@ -68,10 +68,10 @@ const Login = memo(() => {
 
   const checkLogin = async (firebaseToken: string) => {
     const { user, token, typeWallets, categories, currencies } =
-      await apiSignIn({
-        firebaseToken,
-        isGuest: false,
-      });
+    await apiSignIn({
+      firebaseToken,
+      isGuest: false,
+    });
     await saveToken(token);
     await saveGuestFlag(false);
 
@@ -93,6 +93,8 @@ const Login = memo(() => {
         permissions: ["public_profile"],
       });
 
+      const { token, type } = result;
+
       if (result.type === "success") {
         setLoading(true);
 
@@ -107,11 +109,11 @@ const Login = memo(() => {
         if (!currentUser) {
           return;
         }
-
+        
         const firebaseToken = await currentUser
-          .getIdToken()
-          .then((data) => data);
-
+        .getIdToken()
+        .then((data) => data);
+        
         await checkLogin(firebaseToken);
 
         setLoading(false);
@@ -119,6 +121,7 @@ const Login = memo(() => {
         return { cancelled: true };
       }
     } catch (e) {
+      console.error(e);
       setLoading(false);
       // Handle error
       Alert.alert("Login facebook failed");

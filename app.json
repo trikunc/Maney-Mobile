@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Maney",
-    "slug": "Manage your daily money",
+    "slug": "maney-app",
     "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,12 +16,10 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "usesAppleSignIn": true,
-      "bundleIdentifier": "com.maney.id",
+      "bundleIdentifier": "com.maney.id.app",
       "supportsTablet": true,
       "buildNumber": "2.2.1",
       "config": {
@@ -42,7 +40,7 @@
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3178887708370866~1543494537",
         "googleSignIn": {
-          "apiKey": "475423565132-9jaav1vouo7brfrs8jfaqboc2hljk14e.apps.googleusercontent.com",
+          "apiKey": "AIzaSyAG5p7oELZQ5GW9PqgCXN57NnK-JXQO7C0",
           "certificateHash": "8E:BF:B2:E8:C9:6A:5E:CC:AF:D0:CF:53:56:DC:1F:41:8F:CE:1F:36"
         }
       }

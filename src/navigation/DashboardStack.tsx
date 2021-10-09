@@ -22,14 +22,14 @@ const DashboardStack = memo(() => {
           headerTintColor: colors.grey2,
           headerTitleStyle: styles.headerTitleStyle,
           headerStyle: styles.headerStyle,
-          headerLeft: () => (
-            <HeaderButton
-              icon={ICON.menu}
-              onPress={() => {
-                // navigation.openDrawer();
-              }}
-            />
-          ),
+          // headerLeft: () => (
+          //   <HeaderButton
+          //     icon={ICON.menu}
+          //     onPress={() => {
+          //       // navigation.openDrawer();
+          //     }}
+          //   />
+          // ),
         })}
       />
     </Stack.Navigator>

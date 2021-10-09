@@ -25,18 +25,19 @@ const BottomMainTab = memo(() => {
         name={ROUTES.DashboardBottomTab}
         component={DashboardStack}
         options={{
+          headerShown: false,
           tabBarIcon: ({ color }) => <SvgHome color={color} />,
         }}
       />
       <Tab.Screen
         name={ROUTES.ChartBottomTab}
         component={ChartStack}
-        options={{ tabBarIcon: ({ color }) => <SvgChart color={color} /> }}
+        options={{headerShown: false, tabBarIcon: ({ color }) => <SvgChart color={color} /> }}
       />
       <Tab.Screen
         name={ROUTES.ProfileBottomTab}
         component={ProfileStack}
-        options={{ tabBarIcon: ({ color }) => <SvgProfile color={color} /> }}
+        options={{headerShown: false, tabBarIcon: ({ color }) => <SvgProfile color={color} /> }}
       />
     </Tab.Navigator>
   );

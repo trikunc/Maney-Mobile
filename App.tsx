@@ -4,11 +4,17 @@ import { LogBox } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import { setTestDeviceIDAsync } from 'expo-ads-admob';
 import firebase from 'firebase';
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 import { firebaseConfig } from './src/config/firebase';
 import App from './src/Entrypoint';
 
 // Firebase
-firebase.initializeApp(firebaseConfig)
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); 
+}
 
 /* Enable when release */
 // setTestDeviceIDAsync('EMULATOR');

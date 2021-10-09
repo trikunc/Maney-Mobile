@@ -1,7 +1,8 @@
 import { getToken } from "../utils/store/Store";
 
 /*** MUST-CONFIG ***/
-export const SERVER_ADDRESS = "http://localhost:3000";
+// export const SERVER_ADDRESS = "http://localhost:3000"; // emulator
+export const SERVER_ADDRESS = "http://167.172.89.97:3000"; // expo go (real device)
 
 export const BEARER = "Bearer";
 export const API_ENDPOINT = SERVER_ADDRESS + "/api/";
@@ -39,11 +40,13 @@ export async function request(
   navigate_token: any
 ) {
   try {
-    const token = navigate_token || (await getToken());
+    const token = navigate_token !==null ? navigate_token : (await getToken());
+    console.log('==API_ENDPOINT==', API_ENDPOINT + endpoint);
     let response = await fetch(
       API_ENDPOINT + endpoint,
       getParam(method, body, token)
     );
+
     console.log("REQUEST", method + " : " + API_ENDPOINT + endpoint);
     let data = await response.json();
     return handleError(data);
