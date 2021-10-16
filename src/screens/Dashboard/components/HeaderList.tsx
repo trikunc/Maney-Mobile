@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { widthScreen } from "@utils/dimensions";
 import WalletItem from "@components/WalletItem";
 import Carousel from "react-native-snap-carousel";
@@ -49,6 +49,6 @@ export default HeaderList;
 const styles = StyleSheet.create({
   containerCustomStyle: {
     paddingLeft: 16,
-    marginVertical: 16,
+    marginTop: 16,
   },
 });

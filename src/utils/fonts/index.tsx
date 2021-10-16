@@ -1,15 +1,9 @@
 const FONTS_APP = {
-  // Mukta: {
-  //   Bold: 'sans-serif',
-  //   SemiBold: 'sans-serif',
-  //   Regular: 'sans-serif',
-  //   Medium: 'sans-serif',
-  // },
   Mukta: {
-    Bold: 'MuktaBold',
-    SemiBold: 'MuktaBold',
-    Regular: 'MuktaRegular',
-    Medium: 'MuktaMedium',
+    Bold: "Mukta-Bold",
+    SemiBold: "Mukta-Bold",
+    Regular: "Mukta-Regular",
+    Medium: "Mukta-Medium",
   },
 };
 

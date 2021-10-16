@@ -1,18 +1,10 @@
 import React, { memo, useCallback, useState, useRef, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Platform,
-  Animated,
-  Alert,
-} from "react-native";
+import { View, StyleSheet, Platform, Animated, Alert } from "react-native";
 import colors from "@utils/colors";
 import AnimatedInput from "@components/AnimatedInput";
 import { useNavigation } from "@react-navigation/native";
 import ROUTES from "@utils/routes";
 import { format } from "@utils/formatNumber";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
 import AnimatedTab from "@elements/AnimatedTab";
 import Animated2Tab from "@elements/Animated2Tab";
 import Text from "@elements/Text";
@@ -24,11 +16,9 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
 } from "react-native-gesture-handler";
-import DatePickerModalize from "@elements/DatePickerModalize";
 import HeaderButton from "@elements/Header/HeaderButton";
 import ButtonPrimary from "@elements/Button/ButtonPrimary";
 import ConfirmDialog from "@elements/Dialog/ConfirmDialog";
-import useKeyboard from "@hooks/useKeyBoard";
 import ButtonSecondary from "@elements/Button/ButtonSecondary";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 import AnimatedModal from "@elements/AnimatedModal";
@@ -43,9 +33,10 @@ import {
 import moment from "moment";
 import { IMAGE_ICON_CATEGORY } from "@assets/IconCategory";
 import { IMasterState } from "../../store/models/reducers/master";
-import CalculatorItem from "@components/CalculatorItem";
-// @ts-ignore
-import * as dashboardActions from "@actions/dashboardActions";
+import ModalizeKeyboard from "@components/ModalizeKeyboard";
+import ModalizeCalendar from "@components/ModalizeCalendar";
+import useModalize from "@hooks/useModalize";
+import dayjs from "@utils/dayjs";
 interface IState {
   dataReducer: IDataState;
   loadingReducer: ILoading;
@@ -55,7 +46,9 @@ interface IState {
 const EditTransaction = memo(({ route }: any) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const keyboard = useKeyboard;
+
+  const wallets = useSelector((state: IState) => state.dataReducer.wallets);
+  const userData = useSelector((state: IState) => state.masterReducer.user);
 
   const [currency, setCurrency] = useState<string>("USD");
   const [balance, setBalance] = useState<any>(0);
@@ -63,7 +56,7 @@ const EditTransaction = memo(({ route }: any) => {
   const [wallet, setWallet] = useState<WALLET>();
   const [walletFrom, setWalletFrom] = useState<any>({});
   const [walletTo, setWalletTo] = useState<any>({});
-  const [date, setDate] = useState<string>();
+  const [date, setDate] = useState<string>(dayjs().format());
   const [note, setNote] = useState<string>("");
 
   const [showDialog, setShowDialog] = useState(false);
@@ -76,9 +69,16 @@ const EditTransaction = memo(({ route }: any) => {
   const transY = useRef(new Animated.Value(0)).current;
   const transaction: TRANSACTION = route.params;
 
-  const wallets = useSelector((state: IState) => state.dataReducer.wallets);
+  const now = new Date();
+  const max = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const userData = useSelector((state: IState) => state.masterReducer.user);
+  const { modalizeRef, open, close } = useModalize();
+
+  const {
+    modalizeRef: modalizeKeyboard,
+    open: openKeyboard,
+    close: closeKeyBoard,
+  } = useModalize();
 
   React.useEffect(() => {
     setCategory(route.params?.category);
@@ -162,7 +162,11 @@ const EditTransaction = memo(({ route }: any) => {
   }, [showModal, transY, translateY]);
 
   const onAddTransactionCategory = useCallback(() => {
-    const params = { category: category, route: ROUTES.EditTransaction };
+    const params = {
+      category: category,
+      route: ROUTES.EditTransaction,
+      type: category?.type,
+    };
     navigation.navigate(ROUTES.AddTransactionCategory, params);
   }, [category]);
 
@@ -190,6 +194,7 @@ const EditTransaction = memo(({ route }: any) => {
   };
   const onOpenKeyboard = () => {
     setVisibleKeyBoard(true);
+    openKeyboard();
   };
   const onCloseKeyboard = () => {
     setVisibleKeyBoard(false);
@@ -202,13 +207,11 @@ const EditTransaction = memo(({ route }: any) => {
     setBalance(value);
   };
 
-  const onChoseDate = (item: any) => {
-    if (item.dateString) {
-      setDate(item.dateString);
-    } else {
-      setDate(item);
-    }
-  };
+  const onDone = React.useCallback((value: number) => {
+    setBalance(value);
+    setVisibleKeyBoard(false);
+    closeKeyBoard();
+  }, []);
 
   const onPressDiscardChange = () => {
     Animated.timing(translateY, {
@@ -381,10 +384,6 @@ const EditTransaction = memo(({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
       <View style={styles.tabView}>
         {/* 
         * hind transfer
@@ -497,9 +496,9 @@ const EditTransaction = memo(({ route }: any) => {
               nonBorder={true}
             />
             <AnimatedInput
-              onPress={onSelectDate}
+              onPress={open}
               icon={ICON.calendar}
-              value={moment(date).format("L LT")}
+              value={dayjs(date).format("DD/MM/YYYY")}
               placeholder={"Date"}
             />
             <AnimatedInput
@@ -539,13 +538,7 @@ const EditTransaction = memo(({ route }: any) => {
         visible={showModal}
         children={renderButtons()}
       />
-      <DatePickerModalize
-        onOverlayPress={() => setVisible(false)}
-        maxDate={new Date()}
-        visible={visible}
-        onSelect={onChoseDate}
-        onApply={() => setVisible(false)}
-      />
+
       <ConfirmDialog
         titleButton1={"Yes"}
         titleButton2={"No"}
@@ -556,13 +549,19 @@ const EditTransaction = memo(({ route }: any) => {
         onButton1={onPressYes}
         onButton2={onPressNo}
       />
-      <CalculatorItem
-        onClose={onCloseKeyboard}
-        onRequestClose={onCloseKeyboard}
+      <ModalizeCalendar
+        ref={modalizeRef}
+        title="Select Date"
+        date={dayjs(date).toDate()}
+        onChangeDate={(date) => setDate(dayjs(date).format())}
+        max={max}
+      />
+      <ModalizeKeyboard
+        ref={modalizeKeyboard}
+        onOverlayPress={onCloseKeyboard}
         onTextChange={onTextChange}
         onCalc={onHandleCalculation}
-        onAccept={onCloseKeyboard}
-        visible={visibleKeyBoard}
+        onDone={onDone}
       />
     </View>
   );
@@ -632,7 +631,6 @@ const styles = StyleSheet.create({
     color: colors.grey1,
   },
   input: {
-    backgroundColor: "red",
     width: 0,
     height: 0,
     position: "absolute",

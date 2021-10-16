@@ -14,7 +14,14 @@ export default ({ style, onPress }: Props) => {
   return (
     <View style={[styles.container, style]}>
       <View style={styles.setRow}>
-        <Text semiBold size={18} lineHeight={24} marginTop={16} marginLeft={16}>
+        <Text
+          uppercase
+          semiBold
+          size={18}
+          lineHeight={24}
+          marginTop={16}
+          marginLeft={16}
+        >
           Transactions
         </Text>
         <ButtonIcon
@@ -31,6 +38,7 @@ export default ({ style, onPress }: Props) => {
         marginBottom={32}
         marginHorizontal={60}
         color={colors.grey3}
+        uppercase
         center
       >
         Tap “+” button to create your new transaction
@@ -43,7 +51,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     borderRadius: 12,
-    marginHorizontal: 16,
   },
   setRow: {
     flexDirection: "row",

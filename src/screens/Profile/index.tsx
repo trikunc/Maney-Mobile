@@ -1,19 +1,22 @@
 import React, { memo, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import { View, StyleSheet } from "react-native";
-// TODO: import ProfilePremium from "./components/ProfilePremium";
-import ProfileNormal from "./components/ProfileNormal";
-import ProfileGuest from "./components/ProfileGuest";
+import { useFocusEffect } from "@react-navigation/native";
+
 import AdBanner from "@components/AdBanner";
-import { getGuestFlag, getUuidUser } from "@utils/store/Store";
+import ProfileGuest from "./components/ProfileGuest";
+import ProfileNormal from "./components/ProfileNormal";
+
+import { getGuestFlag } from "@utils/store/Store";
 
 const Profile = memo(() => {
   const [isGuest, setIsGuest] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  useFocusEffect(React.useCallback(() => {
-    initialized();
-  }, []));
+  useFocusEffect(
+    React.useCallback(() => {
+      initialized();
+    }, [])
+  );
 
   const initialized = async () => {
     let guestFlag = await getGuestFlag();
@@ -23,17 +26,16 @@ const Profile = memo(() => {
       setIsGuest(false);
     }
     setLoaded(true);
-  }
+  };
 
   if (!loaded) {
-    return <View style={styles.container}></View>
+    return <View style={styles.container}></View>;
   }
 
   return (
     <View style={styles.container}>
-      { isGuest ? <ProfileGuest /> : <ProfileNormal  /> }
-      {/* TODO: <ProfilePremium /> */}
-      <AdBanner/>
+      {isGuest ? <ProfileGuest /> : <ProfileNormal />}
+      <AdBanner />
     </View>
   );
 });

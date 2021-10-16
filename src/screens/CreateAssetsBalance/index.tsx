@@ -1,32 +1,29 @@
-import React, { memo, useCallback, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TextInput,
-  Platform,
-  Modal,
-} from "react-native";
-import colors from "@utils/colors";
-import FONTS from "@utils/fonts";
-import { widthScreen } from "@utils/dimensions";
-import ROUTES from "@utils/routes";
+import React, { memo } from "react";
+import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { Layout } from "@ui-kitten/components";
+import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import useModalize from "@hooks/useModalize";
+
+import Text from "@components/Text";
+import Container from "@components/Container";
+import ModalizeKeyboard from "@components/ModalizeKeyboard";
+
+import ROUTES from "@utils/routes";
+import colors from "@utils/colors";
+import { IState } from "@constant/Types";
 import { format } from "@utils/formatNumber";
-import HeaderButton from "@elements/Header/HeaderButton";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import CalculatorItem from "@components/CalculatorItem";
 
 const CreateAssetsBalance = memo(({ route }: any) => {
   const navigation = useNavigation();
+  const user = useSelector((state: IState) => state.masterReducer.user);
 
-  const [walletBalance, setWalletBalance] = useState<any>(0);
-  const [walletTmpBalance, setWalletTmpBalance] = useState<any>("");
-  const [isEnter, setIsEnter] = useState<any>(false);
+  const [walletBalance, setWalletBalance] = React.useState<number>(0);
+  const [walletTmpBalance, setWalletTmpBalance] = React.useState<string>("");
+  const [goBack, setGoBack] = React.useState<string>("");
+  const [visible, setVisible] = React.useState<boolean>(false);
 
-  const [currency, setCurrency] = useState<any>("USD");
-  const [goBack, setGoBack] = useState<string>("");
+  const { modalizeRef, open, close } = useModalize();
 
   React.useEffect(() => {
     if (route.params?.route) {
@@ -34,92 +31,57 @@ const CreateAssetsBalance = memo(({ route }: any) => {
     } else {
       setGoBack(ROUTES.CreateAssets);
     }
-    setWalletBalance(route.params?.balance || 0);
-    setCurrency(route.params?.currency || "USD");
-  }, [route.params?.route, route.params?.balance]);
-
-  const [visible, setVisible] = useState(true);
-
-  React.useLayoutEffect(() => {
-    const textDoneStyle = { color: colors.purplePlum };
-
-    const onDone = () => {
-      console.log('balance:', walletBalance)
-      const balance = { balance: walletBalance };
-      navigation.navigate(goBack, balance);
-    };
-
-    navigation.setOptions({
-      headerRight: () => (
-        isEnter && <HeaderButton
-          onPress={onDone}
-          titleStyle={textDoneStyle}
-          title={"Done"}
-        />
-      ),
-    });
-  }, [walletBalance, goBack]);
-
-  const onOpenKeyboard = () => {
+    modalizeRef.current?.open();
     setVisible(true);
-  };
+  }, [route.params?.route]);
 
-  const onCloseKeyboard = () => {
+  const onDone = React.useCallback(
+    (number: number) => {
+      setVisible(false);
+      const balance = { balance: number };
+      navigation.navigate(goBack, balance);
+    },
+    [goBack]
+  );
+
+  const handleOpen = React.useCallback(() => {
+    open();
+    setVisible(true);
+  }, []);
+
+  const handleClose = React.useCallback(() => {
     setVisible(false);
-  };
-
-  const onTextChange = (text: string) => {
-    setWalletTmpBalance(text);
-  };
-
-  const onHandleCalculation = (value: number) => {
-    setWalletBalance(value);
-  };
-
-  const onAcceptKeyboard = useCallback(() => {
-    setVisible(false);
-    setIsEnter(true);
   }, []);
 
   return (
-    <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
-      <TouchableWithoutFeedback
-        onPress={onOpenKeyboard}
-        style={styles.inputBox}
-      >
-        <Text style={styles.textBalance}>
-          {visible ? walletTmpBalance : format(walletBalance)}
-        </Text>
-        {currency !== null && (
+    <Container level="2">
+      <TouchableWithoutFeedback onPress={handleOpen}>
+        <Layout style={styles.input}>
+          <Text category="title1" status="success" marginTop={16}>
+            {visible ? walletTmpBalance : format(walletBalance)}
+          </Text>
           <View style={styles.currencyView}>
-            <Text style={styles.textCurrency}>{currency}</Text>
+            <Text category="subhead" marginTop={2}>
+              {user.currency.currency}
+            </Text>
           </View>
-        )}
+        </Layout>
       </TouchableWithoutFeedback>
-      <CalculatorItem
-        onClose={onCloseKeyboard}
-        onRequestClose={onCloseKeyboard}
-        onTextChange={onTextChange}
-        onCalc={onHandleCalculation}
-        onAccept={onAcceptKeyboard}
-        visible={visible}
+      <ModalizeKeyboard
+        ref={modalizeRef}
+        onOverlayPress={handleClose}
+        onTextChange={setWalletTmpBalance}
+        onCalc={setWalletBalance}
+        onDone={onDone}
       />
-    </View>
+    </Container>
   );
 });
 
 export default CreateAssetsBalance;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  inputBox: {
+  input: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: colors.whisper,
@@ -129,55 +91,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   currencyView: {
-    height: 24,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 4,
     backgroundColor: colors.grey5,
-    marginRight: 14,
     paddingHorizontal: 8,
     paddingVertical: 2,
     position: "absolute",
     top: 12,
     left: 16,
-  },
-  textCurrency: {
-    fontFamily: FONTS.MUKTA.SemiBold,
-    fontSize: 14,
-    color: colors.grey1,
-  },
-  textBalance: {
-    fontFamily: FONTS.MUKTA.Bold,
-    fontWeight: "700",
-    fontSize: 34,
-    color: colors.bleuDeFrance,
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  input: {
-    backgroundColor: "red",
-    width: 0,
-    height: 0,
-    position: "absolute",
-  },
-  buttonView: {
-    shadowColor: "rgba(0, 0, 0, 0.7)",
-    shadowOffset: { width: -1, height: -1 },
-    shadowRadius: 4,
-    shadowOpacity: 0.05,
-    borderTopWidth: 1,
-    borderTopColor: colors.snow,
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  buttonDone: {
-    width: "100%",
-  },
-  viewButton: {
-    position: "absolute",
-    bottom: 0,
-    width: widthScreen,
   },
 });

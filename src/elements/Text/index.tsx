@@ -110,7 +110,7 @@ export default ({
     fontStyle = "Bold";
   }
   if (semiBold) {
-    fontStyle = "SemiBold";
+    fontStyle = "Bold";
   }
   if (regular) {
     fontStyle = "Regular";
@@ -158,7 +158,7 @@ export default ({
             fontStyle == "Bold"
               ? FONTS.MUKTA.Bold
               : fontStyle == "SemiBold"
-              ? FONTS.MUKTA.SemiBold
+              ? FONTS.MUKTA.Bold
               : FONTS.MUKTA.Regular,
           color: hiLight ? colors.black : color,
           fontSize: textSize,

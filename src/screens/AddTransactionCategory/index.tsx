@@ -1,20 +1,26 @@
-import React, { memo, useCallback, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import colors from "@utils/colors";
+import React, { memo } from "react";
+import { StyleSheet, FlatList } from "react-native";
+import { useTheme, Icon, Input, TopNavigation } from "@ui-kitten/components";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import HeaderButton from "@elements/Header/HeaderButton";
-import ROUTES from "@utils/routes";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
-import SearchBar from "@elements/SearchBar";
-import keyExtractor from "@utils/keyExtractor";
-import LoadingView from "@elements/LoadingView";
-import AnimatedDropSelectItem from "@components/AnimatedDropSelectItem";
-import { getBottomSpace } from "react-native-iphone-x-helper";
 import { useSelector } from "react-redux";
-import { IMasterState } from "@store/models/reducers/master";
-import { ILoading } from "@store/models/reducers/loading";
+import useLayout from "@hooks/useLayout";
+
+import Content from "@components/Content";
+import Container from "@components/Container";
+import ListCategory from "@components/ListCategory";
+import NavigationAction from "@components/NavigationAction";
+
+import ROUTES from "@utils/routes";
 import changeAlias from "@utils/stringAlias";
-import { CATEGORY } from "@store/models";
+import keyExtractor from "@utils/keyExtractor";
+import { ILoading } from "@store/models/reducers/loading";
+import { IMasterState } from "@store/models/reducers/master";
+import { RefreshControl } from "react-native-web-refresh-control";
+import {
+  CategoriesFragment,
+  CategoryFragment,
+  Category_Types_Enum,
+} from "@constant/Types";
 
 interface IState {
   masterReducer: IMasterState;
@@ -22,27 +28,24 @@ interface IState {
 }
 
 const AddTransactionCategory = memo(({ route }: any) => {
-  const navigation = useNavigation();
+  const theme = useTheme();
+  const { navigate } = useNavigation();
+  const { bottom } = useLayout();
 
-  const [search, setSearch] = useState<string>("");
-  const [category, setCategory] = useState<any>({});
-  const [dataSearch, setDataSearch] = useState<Array<object>>([]);
+  const [expand, setExpand] = React.useState<boolean>(false);
+  const [close, setClose] = React.useState<boolean>(false);
 
-  const disabled = category.name === undefined;
-  const [goback, setGoBack] = useState<string>(ROUTES.CreateTransaction);
+  const [search, setSearch] = React.useState<string>("");
+  const [listCategories, setListCategories] = React.useState<
+    CategoriesFragment[]
+  >([]);
+  const [dataSearch, setDataSearch] = React.useState<CategoriesFragment[]>([]);
 
-  const loading = useSelector(
-    (state: IState) => state.loadingReducer.isLoading
-  );
+  const [goback, setGoBack] = React.useState<string>(ROUTES.CreateTransaction);
 
   const categories = useSelector(
     (state: IState) => state.masterReducer.categories
   );
-
-  // Debug purpose
-  // const [categories] = useState(
-  //   route.params?.tabActive == 0 ? LIST_CATEGORY : LIST_CATEGORY_INCOME
-  // );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -51,155 +54,135 @@ const AddTransactionCategory = memo(({ route }: any) => {
       } else {
         setGoBack(ROUTES.CreateTransaction);
       }
-      if (route.params?.category) {
-        setCategory(route.params?.category);
+      if (route.params.type && categories) {
+        const lCategories = categories.filter(
+          (i) => i.type === route.params.type
+        );
+        setListCategories(lCategories);
       }
-      // console.log("route: ", route.params);
-      //setWalletName(route.params?.name || "");
-      initialized();
+      if (route.params.type === Category_Types_Enum.Income) {
+        setExpand(true);
+      }
     }, [route.params?.category, route.params?.route])
   );
 
-  const initialized = async () => {
-    try {
-      setDataSearch(categories);
-    } catch (e) {}
-  };
-
-  React.useLayoutEffect(() => {
-    const onPressDone = () => {
-      const params = { category: category };
-      navigation.navigate(goback, params);
-    };
-
-    const textDoneStyle = disabled
-      ? { color: colors.grey3 }
-      : { color: colors.purplePlum };
-
-    navigation.setOptions({
-      headerTitle:
-        route.params?.tabActive == 0 ? "Expense Categories" : "Income Category",
-      headerRight: () => (
-        <HeaderButton
-          onPress={onPressDone}
-          disabled={disabled}
-          titleStyle={textDoneStyle}
-          title={"Done"}
-        />
-      ),
-    });
-  }, [category]);
-
-  const onChooseCategory = (item: any) => {
-    setCategory(item);
-  };
-  const onPressSearch = useCallback((text) => {
-    let data = dataSearch;
-    if (text === "" || text === null || text === undefined) {
-      setDataSearch(categories);
-    } else {
-      data = [];
-      categories.map((item) => {
-        if (changeAlias(item.name).includes(changeAlias(text))) {
-          let iemmArr: Array<CATEGORY> = [];
-          item.children.map((itemChildren) => {
-            if (changeAlias(itemChildren.name).includes(changeAlias(text))) {
-              iemmArr.push(itemChildren);
+  React.useEffect(() => {
+    let data: CategoriesFragment[] = [];
+    if (search !== "" || search !== null || search !== undefined) {
+      listCategories.map((item) => {
+        let arr: CategoryFragment[] = [];
+        const { children } = item;
+        children &&
+          children.map((i, idx) => {
+            if (i.name && changeAlias(i.name).includes(changeAlias(search))) {
+              arr.push(i);
             }
           });
-          let dataTemp = {
-            id: item.id,
-            name: item.name,
-            icon: item.icon,
-            type: item.type,
-            children: iemmArr,
-          };
-          data.push(dataTemp);
-        }
+        let dataTemp = {
+          ...item,
+          children: arr,
+        };
+        data.push(dataTemp);
       });
       setDataSearch(data);
+    } else {
+      setDataSearch(listCategories);
     }
-    setSearch(text);
-  }, []);
+  }, [search, listCategories]);
 
-  const renderListCategory = useCallback(
-    ({ item, index }) => {
+  const renderListCategory = React.useCallback(
+    ({ item }) => {
       return (
-        <AnimatedDropSelectItem
-          onChooseCategories={(category) => onChooseCategory(category)}
-          isCategoriesChose={category.id}
-          {...item}
+        <ListCategory
+          expand={expand}
+          close={close}
+          item={item}
+          onCategory={(category) => {
+            const params = { category: category };
+            navigate(goback, params);
+          }}
         />
       );
     },
-    [category, dataSearch]
+    [expand, close, goback]
   );
 
   return (
-    <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
-      {loading ? (
-        <LoadingView isLoading={loading} />
-      ) : (
-        <>
-          <View style={styles.searchView}>
-            <SearchBar
-              placeholder={"Search category"}
-              inputStyle={styles.inputStyle}
-              style={styles.textInput}
-              placeholderTextColor={colors.greySuit}
-              value={search}
-              onChangeText={(text: string) => onPressSearch(text)}
-            />
-          </View>
-          <FlatList
-            style={styles.list}
-            data={dataSearch}
-            renderItem={renderListCategory}
-            keyExtractor={keyExtractor}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.contentContainerStyle}
+    <Container paddingTop>
+      <TopNavigation
+        title="Expense Categories"
+        accessoryLeft={<NavigationAction />}
+        accessoryRight={
+          <NavigationAction
+            title={expand ? "Collapse" : "Expand"}
+            onPress={() => {
+              if (expand) {
+                setExpand(false);
+                setClose(true);
+              } else {
+                setClose(false);
+                setExpand(true);
+              }
+            }}
           />
-        </>
-      )}
-    </View>
+        }
+      />
+      <Input
+        style={styles.searchView}
+        placeholder="Search category"
+        value={search}
+        onChangeText={setSearch}
+        size="medium"
+        status="search"
+        accessoryLeft={() => (
+          <Icon
+            style={[
+              styles.icon,
+              { tintColor: theme["placeholder-text-input-color"] },
+            ]}
+            pack="assets"
+            name="search"
+          />
+        )}
+      />
+      <Content
+        contentContainerStyle={[styles.list, { paddingBottom: bottom + 16 }]}
+        refreshControl={
+          <RefreshControl style={{ tintColor: theme["color-primary-500"] }} />
+        }
+      >
+        <FlatList
+          scrollEnabled={false}
+          data={dataSearch || []}
+          renderItem={renderListCategory}
+          keyExtractor={keyExtractor}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.contentContainerStyle,
+            { backgroundColor: theme["background-basic-color-1"] },
+          ]}
+        />
+      </Content>
+    </Container>
   );
 });
 
 export default AddTransactionCategory;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.snow,
-  },
-  textEdit: {
-    color: colors.purplePlum,
-  },
   searchView: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: colors.white,
+    marginVertical: 8,
+    marginHorizontal: 16,
   },
-  textInput: {
-    width: "100%",
-    backgroundColor: colors.greySuitOpacity,
-    borderRadius: 10,
-    fontSize: 16,
-  },
-  inputStyle: {
-    fontSize: 16,
-  },
-  list: {
-    padding: 16,
-    paddingBottom: getBottomSpace() + 16,
-  },
+  list: { padding: 16 },
   contentContainerStyle: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 16,
     borderRadius: 12,
+    overflow: "hidden",
+    paddingHorizontal: 16,
+  },
+  icon: {
+    width: 18,
+    height: 18,
+    marginRight: 8,
   },
 });

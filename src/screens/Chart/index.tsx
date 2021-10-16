@@ -1,24 +1,15 @@
 import React, { memo, useState, useCallback } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Text from "@elements/Text";
 import colors from "@utils/colors";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScrollableTab from "@elements/ScrollableTab";
 import ROUTES from "@utils/routes";
-import HeaderButton from "@elements/Header/HeaderButton";
 import { ICON } from "@svg/Icon";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
+import FocusAwareStatusBar from "@components/FocusAwareStatusBar";
 import LoadingView from "@elements/LoadingView";
 import StatisticPage from "@screens/Chart/components/StatisticPage";
 import { currencyFormat } from "@utils/formatNumber";
-import ModalSlideBottom from "@elements/ModalSlideBottom";
-import ModalFrequency from "@components/ModalFrequency";
 import moment, { Moment } from "moment";
 import { IDataState } from "@store/models/reducers/data";
 import { ILoading } from "@store/models/reducers/loading";
@@ -190,10 +181,7 @@ const Chart = memo(({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.emerald}
-        barStyle={"light-content"}
-      />
+      <FocusAwareStatusBar barStyle="light-content" />
       {loading ? (
         <LoadingView isLoading={loading} />
       ) : (
@@ -240,18 +228,6 @@ const Chart = memo(({ route }: any) => {
           </ScrollView>
         </>
       )}
-      {/* <Modal
-        visible={visible}
-        onRequestClose={close}
-        transparent
-        animationType={"none"}
-      >
-        <ModalSlideBottom onClose={close} transY={transY}>
-          <ModalFrequency
-            onChangeFrequency={(frequency) => onChangeFrequency(frequency)}
-          />
-        </ModalSlideBottom>
-      </Modal> */}
     </View>
   );
 });

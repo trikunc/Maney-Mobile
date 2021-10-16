@@ -1,14 +1,13 @@
-import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import colors from '@utils/colors';
+import React, { memo } from "react";
+import { StyleSheet, ViewStyle } from "react-native";
+import { Layout } from "@ui-kitten/components";
 
 interface PropsHeader {
-  style?: any;
+  style?: ViewStyle;
 }
 
-const HeaderBackGround = memo((props: PropsHeader) => {
-  const { style } = props;
-  return <View style={[styles.container, style]} />;
+const HeaderBackGround = memo(({ style }: PropsHeader) => {
+  return <Layout style={[styles.container, style]} />;
 });
 
 export default HeaderBackGround;
@@ -16,6 +15,5 @@ export default HeaderBackGround;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
   },
 });

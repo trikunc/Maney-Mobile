@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback } from "react";
 import { View, StyleSheet, Animated, Image, LogBox } from "react-native";
 import Text from "@elements/Text";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
+import FocusAwareStatusBar from "@components/FocusAwareStatusBar";
 import colors from "@utils/colors";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 import ButtonBottomAnimated from "@elements/Button/ButtonBottom";
@@ -28,10 +28,7 @@ const GetPremium = memo(() => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.emerald}
-        barStyle={"light-content"}
-      />
+      <FocusAwareStatusBar barStyle="light-content" />
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}

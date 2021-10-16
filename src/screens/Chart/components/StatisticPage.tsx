@@ -1,13 +1,13 @@
 import React, { memo } from "react";
 import { View, StyleSheet } from "react-native";
 import { heightScreen, widthScreen } from "@utils/dimensions";
-import TotalTransactionItem from "@components/TotalTransactionItem";
 //@ts-ignore
 import HighchartsReactNative from "@lib/highcharts-react-native";
 import colors from "@utils/colors";
 import { useNavigation } from "@react-navigation/native";
 import ROUTES from "@utils/routes";
 import { CURRENCY } from "@store/models";
+import TotalTransaction from "@components/TotalTransaction";
 
 interface Props {
   walletId?: number;
@@ -119,11 +119,10 @@ const StatisticPage = memo(
             />
           )}
         </View>
-        <TotalTransactionItem
+        <TotalTransaction
           style={styles.transactionEmpty}
           income={income}
           expense={expense}
-          currency={currency}
           onPressIncome={onPressIncome}
           onPressExpense={onPressExpense}
         />

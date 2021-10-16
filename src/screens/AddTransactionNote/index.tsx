@@ -1,39 +1,25 @@
-import React, { memo, useCallback, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import colors from "@utils/colors";
-import TextInput from "@elements/TextInput";
+import React, { memo } from "react";
+import { StyleSheet, Animated } from "react-native";
+import { Button, Input, TopNavigation, useTheme } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
-import HeaderButton from "@elements/Header/HeaderButton";
+
+import Content from "@components/Content";
+import Container from "@components/Container";
+import ButtonBottom from "@components/ButtonBottom";
+import NavigationAction from "@components/NavigationAction";
+
 import ROUTES from "@utils/routes";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
-import { widthScreen } from "@utils/dimensions";
+import useKeyboard from "@hooks/useKeyBoard";
 
 const AddTransactionNote = memo(({ route }: any) => {
-  const navigation = useNavigation();
-  const [note, setNote] = useState<string>("");
-  const [goback, setGoBack] =  useState<string>(ROUTES.CreateTransaction);
-  const disabled = note === "";
+  const { navigate } = useNavigation();
+  const [note, setNote] = React.useState<string>("");
+  const [goback, setGoBack] = React.useState<string>(ROUTES.CreateTransaction);
 
-  React.useLayoutEffect(() => {
-    const textDoneStyle = disabled
-      ? { color: colors.grey3 }
-      : { color: colors.purplePlum };
-
-    const onDone = () => {
-      const noteContent = { note: note };
-      navigation.navigate(goback, noteContent);
-    };
-
-    navigation.setOptions({
-      headerRight: () => (
-        <HeaderButton
-          onPress={onDone}
-          titleStyle={textDoneStyle}
-          title={"Done"}
-        />
-      ),
-    });
-  }, [disabled, note]);
+  const onDone = React.useCallback(() => {
+    const noteContent = { note: note };
+    navigate(goback, noteContent);
+  }, [note, goback]);
 
   React.useEffect(() => {
     if (route.params?.route) {
@@ -46,57 +32,50 @@ const AddTransactionNote = memo(({ route }: any) => {
     }
   }, [route.params?.note]);
 
-  const onChangeNote = useCallback((text) => {
-    setNote(text);
-  }, []);
+  const { height: keyboardHeight } = useKeyboard();
 
-  const onSubmitEditing = () => {};
+  const theme = useTheme();
 
   return (
-    <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
-      <ScrollView scrollEnabled={false}>
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.input}
-            placeholder={"Write a note"}
-            value={note}
-            onChangeText={onChangeNote}
-            autoFocus={true}
-            onSubmitEditing={onSubmitEditing}
-            returnKeyType={"default"}
-          />
-        </View>
-      </ScrollView>
-    </View>
+    <Container paddingTop>
+      <TopNavigation title="Note" accessoryLeft={<NavigationAction />} />
+      <Content>
+        <Input
+          style={styles.input}
+          value={note}
+          placeholder={"Write a note"}
+          onChangeText={setNote}
+        />
+      </Content>
+      <Animated.View
+        style={[
+          styles.keyboard,
+          {
+            bottom: Animated.subtract(keyboardHeight, 0),
+            backgroundColor: theme["background-basic-color-2"],
+          },
+        ]}
+      >
+        <Button disabled={note === ""} children="Done" onPress={onDone} />
+      </Animated.View>
+      <ButtonBottom disabled={note === ""} title="Done" onPress={onDone} />
+    </Container>
   );
 });
 
 export default AddTransactionNote;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  textInput: {
-    alignSelf: "center",
-    width: "100%",
-    height: 48,
-    marginTop: 30,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.seLago,
-    paddingHorizontal: 16,
-  },
   input: {
-    width: "100%",
+    marginHorizontal: 32,
+    marginTop: 24,
   },
-  inputView: {
-    paddingHorizontal: 32,
-    marginTop: 40,
+  keyboard: {
+    paddingVertical: 16,
+    position: "absolute",
+    right: 0,
+    left: 0,
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
   },
 });

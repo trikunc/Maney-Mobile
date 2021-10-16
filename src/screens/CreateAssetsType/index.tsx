@@ -1,26 +1,29 @@
-import React, { memo, useState, useEffect } from "react";
+import React, { memo } from "react";
 import { View, StyleSheet } from "react-native";
 import colors from "@utils/colors";
 import { useNavigation } from "@react-navigation/native";
-import HeaderButton from "@elements/Header/HeaderButton";
 import WalletTypeItem from "@components/WalletTypeItem";
 import ROUTES from "@utils/routes";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
 import { useSelector } from "react-redux";
 import { IMasterState } from "@store/models/reducers/master";
 import { TYPE_WALLET } from "@store/models";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ButtonPrimary from "@elements/Button/ButtonPrimary";
 interface IState {
   masterReducer: IMasterState;
 }
 
 const CreateAssetsType = memo(({ route }: any) => {
   const navigation = useNavigation();
+  const { bottom } = useSafeAreaInsets();
+
   const typeWallets = useSelector(
     (state: IState) => state.masterReducer.typeWallets
   );
-  const [typeWallet, setTypeWallet] = useState<TYPE_WALLET>();
+  const [typeWallet, setTypeWallet] = React.useState<TYPE_WALLET>();
+  const [goBack, setGoBack] = React.useState<string>("");
+
   const disabled = typeWallet === undefined;
-  const [goBack, setGoBack] = useState<string>("");
 
   React.useEffect(() => {
     console.log("params: ", route.params);
@@ -32,34 +35,13 @@ const CreateAssetsType = memo(({ route }: any) => {
     setTypeWallet(route.params?.typeWallet);
   }, [route.params?.route, route.params?.typeWallet]);
 
-  React.useLayoutEffect(() => {
-    const textDoneStyle = disabled
-      ? { color: colors.grey3 }
-      : { color: colors.purplePlum };
-
-    const onDone = () => {
-      const param = { typeWallet: typeWallet };
-      navigation.navigate(goBack, param);
-    };
-
-    navigation.setOptions({
-      headerRight: () => (
-        <HeaderButton
-          disabled={disabled}
-          onPress={onDone}
-          titleStyle={textDoneStyle}
-          title={"Done"}
-        />
-      ),
-    });
-  }, [disabled, goBack, typeWallet]);
+  const onDone = React.useCallback(() => {
+    const param = { typeWallet: typeWallet };
+    navigation.navigate(goBack, param);
+  }, [goBack, typeWallet]);
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
       <View style={styles.contentView}>
         {typeWallets.map((item: any, index: number) => {
           const onPress = () => {
@@ -74,6 +56,14 @@ const CreateAssetsType = memo(({ route }: any) => {
             />
           );
         })}
+      </View>
+      <View style={[styles.keyboard, { paddingBottom: bottom + 8 }]}>
+        <ButtonPrimary
+          disabled={disabled}
+          onPress={onDone}
+          title="Done"
+          style={styles.button}
+        />
       </View>
     </View>
   );
@@ -93,5 +83,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.white,
     marginHorizontal: 16,
+  },
+  keyboard: {
+    paddingTop: 8,
+    paddingHorizontal: 16,
+    backgroundColor: colors.white,
+    position: "absolute",
+    right: 0,
+    left: 0,
+    bottom: 0,
+  },
+  button: {
+    flex: 1,
   },
 });

@@ -1,13 +1,15 @@
 import React, { memo, useCallback, useState } from "react";
-import { View, StyleSheet } from "react-native";
-import colors from "@utils/colors";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import HeaderButton from "@elements/Header/HeaderButton";
 import WalletTypeItem from "@components/WalletTypeItem";
 import ROUTES from "@utils/routes";
 import { useSelector } from "react-redux";
 import { IDataState } from "@store/models/reducers/data";
 import { TYPE_WALLET, WALLET } from "@store/models";
+import ButtonBottom from "@components/ButtonBottom";
+import Container from "@components/Container";
+import Content from "@components/Content";
+import { Layout } from "@ui-kitten/components";
 
 interface IState {
   dataReducer: IDataState;
@@ -58,23 +60,6 @@ const AddTransactionWallets = memo(({ route }: any) => {
     setWalletsAll(allWallet);
   }, [route.params?.wallet, route.params?.route]);
 
-  React.useLayoutEffect(() => {
-    const textDoneStyle = disabled
-      ? { color: colors.grey3 }
-      : { color: colors.purplePlum };
-
-    navigation.setOptions({
-      headerRight: () => (
-        <HeaderButton
-          disabled={disabled}
-          onPress={onDone}
-          titleStyle={textDoneStyle}
-          title={"Done"}
-        />
-      ),
-    });
-  }, [disabled, wallet]);
-
   const onDone = useCallback(() => {
     let params: object;
     if (type == 1) {
@@ -89,43 +74,36 @@ const AddTransactionWallets = memo(({ route }: any) => {
     navigation.navigate(goback, params);
   }, [wallet]);
 
-  const onPress = useCallback((item) => {
-    setWallet(item);
-  }, []);
-
   return (
-    <View style={styles.container}>
-      <View style={styles.contentView}>
-        {walletsAll &&
-          walletsAll.map((item: any, index: number) => {
-            return (
-              <WalletTypeItem
-                isChose={wallet?.id}
-                id={item.id}
-                onPress={() => onPress(item)}
-                wallet={item}
-                key={index}
-              />
-            );
-          })}
-      </View>
-    </View>
+    <Container>
+      <Content padder>
+        <Layout style={styles.contentView}>
+          {walletsAll &&
+            walletsAll.map((item: any, index: number) => {
+              return (
+                <WalletTypeItem
+                  isChose={wallet?.id}
+                  id={item.id}
+                  onPress={() => setWallet(item)}
+                  wallet={item}
+                  key={index}
+                />
+              );
+            })}
+        </Layout>
+      </Content>
+      <ButtonBottom disabled={disabled} title="Done" onPress={onDone} />
+    </Container>
   );
 });
 
 export default AddTransactionWallets;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.snow,
-    paddingHorizontal: 31,
-  },
   contentView: {
-    marginTop: 24,
+    marginTop: 16,
     paddingLeft: 16,
     paddingRight: 18,
     borderRadius: 12,
-    backgroundColor: colors.white,
   },
 });

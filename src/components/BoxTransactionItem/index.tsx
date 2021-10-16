@@ -1,69 +1,49 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import Text from "@elements/Text";
-import colors from "@utils/colors";
-import FONTS from "@utils/fonts";
-import TransactionItem from "./TransactionItem";
+import { StyleSheet, ViewStyle } from "react-native";
+import { Layout } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
+
+import Text from "@components/Text";
+import TransactionItem from "./TransactionItem";
+
 import ROUTES from "@utils/routes";
+import { TransactionFragment } from "@constant/Types";
 
 interface Props {
-  style?: object;
+  style?: ViewStyle;
   title?: string;
-  currency?: string;
-  content?: [];
+  content?: TransactionFragment[];
 }
 
-export default ({ title, content, style, currency }: Props) => {
+const BoxTransactionItem = ({ title, content, style }: Props) => {
   const navigation = useNavigation();
   return (
-    <View style={[styles.container, style]}>
-      <View style={styles.setRowLine}>
-        <Text style={styles.textTitle}>{title}</Text>
-      </View>
-      <View style={styles.padding}>
-        {content &&
-          content.map((item: any, index: number) => {
-            const onPressEditTransaction = () => {
-              navigation.navigate(ROUTES.EditTransaction, item);
-            };
-            return (
-              <TransactionItem
-                onPress={onPressEditTransaction}
-                currency={currency}
-                {...item}
-                key={index}
-              />
-            );
-          })}
-      </View>
-    </View>
+    <Layout style={[styles.container, style]}>
+      <Text category="title4" margin={16}>
+        {title}
+      </Text>
+      <Layout level="3" style={styles.line} />
+      {content &&
+        content.map((item: any, index: number) => {
+          const onPress = () => {
+            navigation.navigate(ROUTES.EditTransaction, item);
+          };
+          return <TransactionItem onPress={onPress} {...item} key={index} />;
+        })}
+    </Layout>
   );
 };
 
+export default BoxTransactionItem;
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white,
     borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 8,
+    backgroundColor: "red",
   },
-  setRowLine: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    marginTop: 16,
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.snow,
-    paddingBottom: 16,
-  },
-  textTitle: {
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: "600",
-    color: colors.grey1,
-    fontFamily: FONTS.MUKTA.Bold,
-  },
-  padding: {
-    paddingHorizontal: 16,
+  line: {
+    height: 1,
   },
 });

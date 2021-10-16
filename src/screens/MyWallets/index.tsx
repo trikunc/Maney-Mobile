@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useRef, useState } from "react";
-import { View, StyleSheet, Animated } from "react-native";
-import Text from "@elements/Text";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
+import { View, StyleSheet, Animated, ScrollView } from "react-native";
+import FocusAwareStatusBar from "@components/FocusAwareStatusBar";
 import colors from "@utils/colors";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import HeaderButton from "@elements/Header/HeaderButton";
@@ -9,14 +8,15 @@ import { ICON } from "@svg/Icon";
 import WalletItem from "@components/WalletItem";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 import { currencyFormat } from "@utils/formatNumber";
-import LoadingView from "@elements/LoadingView";
 import ROUTES from "@utils/routes";
-import AdBanner from "@components/AdBanner";
 import { useSelector } from "react-redux";
 import { IDataState } from "@store/models/reducers/data";
 import { CURRENCY } from "@store/models";
-import { IMasterState } from "../../store/models/reducers/master";
 import { ILoading } from "@store/models/reducers/loading";
+import { RefreshControl } from "react-native-web-refresh-control";
+import { IMasterState } from "@store/models/reducers/master";
+import { useTheme } from "@ui-kitten/components";
+import Text from "@components/Text";
 
 interface IState {
   dataReducer: IDataState;
@@ -29,20 +29,11 @@ const MyWallets = memo(() => {
   const [currency, setCurrency] = useState<CURRENCY>();
   const [amount, setAmount] = useState<number>(0);
 
+  const theme = useTheme();
+
   const scrollY = useRef(new Animated.Value(0)).current;
   const wallets = useSelector((state: IState) => state.dataReducer.wallets);
   const user = useSelector((state: IState) => state.masterReducer.user);
-
-  const loading = useSelector(
-    (state: IState) => state.loadingReducer.isLoading
-  );
-
-  const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { scrollY } } }],
-    {
-      useNativeDriver: true,
-    }
-  );
 
   const onPressAdd = useCallback(() => {
     const params = { route: ROUTES.MyWallets };
@@ -73,19 +64,6 @@ const MyWallets = memo(() => {
     } catch (e) {}
   };
 
-  const opacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0.7, 0],
-  });
-  const blOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0],
-  });
-  const scale = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0.7],
-  });
-
   const onPressWallet = useCallback((item: any) => {
     const res = item;
     navigation.navigate(ROUTES.MyWalletsEdit, res);
@@ -93,76 +71,56 @@ const MyWallets = memo(() => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.emerald}
-        barStyle={"light-content"}
-      />
-      {loading ? (
-        <LoadingView isLoading={loading} />
-      ) : (
-        <>
-          <Animated.ScrollView
-            showsVerticalScrollIndicator={false}
-            scrollEventThrottle={16}
-            bounces={false}
-            contentContainerStyle={styles.contentContainerStyle}
-            onScroll={Animated.event(
-              [
-                {
-                  nativeEvent: { contentOffset: { y: scrollY } },
-                },
-              ],
-              { useNativeDriver: true }
-            )}
+      <FocusAwareStatusBar barStyle="light-content" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        contentContainerStyle={styles.contentContainerStyle}
+        refreshControl={
+          <RefreshControl style={{ tintColor: theme["color-primary-500"] }} />
+        }
+      >
+        <View style={styles.topView}>
+          <Text
+            category="headline"
+            status="white"
+            center
+            opacity={0.7}
+            marginTop={24}
           >
-            <View style={styles.topView}>
-              <Animated.Text
-                style={[
-                  styles.textTotal,
-                  {
-                    opacity: opacity,
-                    transform: [{ scale: scale }],
-                  },
-                ]}
-              >
-                Total balance
-              </Animated.Text>
-              {currency ? (
-                <Animated.Text
-                  style={[
-                    styles.textBalance,
-                    {
-                      opacity: blOpacity,
-                      transform: [{ scale: scale }],
-                    },
-                  ]}
-                >
-                  {currencyFormat(amount, currency)}
-                </Animated.Text>
-              ) : null}
-            </View>
-            <Animated.View style={styles.contentStyle}>
-              <Text bold marginLeft={32} size={18} marginTop={24}>
-                Available wallets
-              </Text>
-              {wallets.map((item: any, index: number) => {
-                return (
-                  <View key={index} style={styles.item}>
-                    <WalletItem
-                      onPressWallet={() => onPressWallet(item)}
-                      style={styles.walletItem}
-                      currency={currency}
-                      scrollY={scrollY}
-                      {...item}
-                    />
-                  </View>
-                );
-              })}
-            </Animated.View>
-          </Animated.ScrollView>
-        </>
-      )}
-      <AdBanner />
+            Total balance
+          </Text>
+          {currency && (
+            <Text category="title2" status="white" center>
+              {currencyFormat(amount, currency)}
+            </Text>
+          )}
+        </View>
+        <View style={styles.contentStyle}>
+          <Text
+            category="title4"
+            marginTop={24}
+            marginLeft={32}
+            uppercase
+            marginBottom={16}
+          >
+            Available wallets
+          </Text>
+          {wallets.map((item: any, index: number) => {
+            return (
+              <View key={index} style={styles.item}>
+                <WalletItem
+                  onPressWallet={() => onPressWallet(item)}
+                  style={styles.walletItem}
+                  currency={currency}
+                  scrollY={scrollY}
+                  {...item}
+                />
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
     </View>
   );
 });
@@ -175,8 +133,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   walletItem: {
-    alignSelf: "center",
-    marginTop: 16,
     width: "100%",
   },
   contentContainerStyle: {

@@ -5,37 +5,27 @@ import {
   StyleSheet,
   Modal,
   Alert,
-  Image,
 } from "react-native";
 import colors from "@utils/colors";
 // @ts-ignore
 import isEmpty from "lodash.isempty";
+import _ from "lodash";
 import AnimatedInput from "@components/AnimatedInput";
 import { useNavigation } from "@react-navigation/native";
 import ROUTES from "@utils/routes";
 import { format } from "@utils/formatNumber";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
 import Animated2Tab from "@elements/Animated2Tab";
 import Text from "@elements/Text";
 import { IMAGE_ICON } from "@assets/Icon";
 import { ICON } from "@svg/Icon";
 import { heightScreen, widthScreen } from "@utils/dimensions";
-import {
-  ScrollView,
-  TouchableWithoutFeedback,
-} from "react-native-gesture-handler";
-import DatePickerModalize from "@elements/DatePickerModalize";
-import HeaderButton from "@elements/Header/HeaderButton";
-import { getBottomSpace } from "react-native-iphone-x-helper";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { apiCreateTransaction } from "@api/index";
-import CalculatorItem from "@components/CalculatorItem";
-import ButtonBottomAnimated from "@elements/Button/ButtonBottom";
 import { useDispatch, useSelector } from "react-redux";
 // @ts-ignore
 import * as dashboardActions from "@actions/dashboardActions";
 import { IDataState } from "@store/models/reducers/data";
 import { IMAGE_ICON_CATEGORY } from "@assets/IconCategory";
-import { IMasterState } from "../../store/models/reducers/master";
 import moment from "moment";
 import {
   getPreviousCategory,
@@ -44,22 +34,44 @@ import {
   saveWallet,
 } from "@utils/store/Store";
 import useImagePicker from "@hooks/useImagePicker";
+import ModalizeCalendar from "@components/ModalizeCalendar";
+import useModalize from "@hooks/useModalize";
+import NavigationAction from "@components/NavigationAction";
+import { Layout, TopNavigation } from "@ui-kitten/components";
+import Container from "@components/Container";
+import useLayout from "@hooks/useLayout";
+import useAppTheme from "@hooks/useAppTheme";
+import Content from "@components/Content";
+import ButtonBottom from "@components/ButtonBottom";
+import ModalizeKeyboard from "@components/ModalizeKeyboard";
+import { IMasterState } from "@store/models/reducers/master";
+import { Category_Types_Enum } from "@constant/Types";
+import dayjs from "@utils/dayjs";
 interface IState {
   dataReducer: IDataState;
   masterReducer: IMasterState;
 }
 
 const CreateTransaction = memo(({ route }: any) => {
-  const navigation = useNavigation();
+  const { navigate } = useNavigation();
   const dispatch = useDispatch();
+  const { top } = useLayout();
+  const { toggleTheme } = useAppTheme();
+
+  const { modalizeRef, open, close } = useModalize();
+
+  const {
+    modalizeRef: modalizeKeyboard,
+    open: openKeyboard,
+    close: closeKeyBoard,
+  } = useModalize();
+
   const [currency, setCurrency] = useState<string>("USD");
   const [balance, setBalance] = useState<number>(1);
   const [tmpBalance, setTmpBalance] = useState<string>("");
   const [category, setCategory] = useState<any>({});
   const [wallet, setWallet] = useState<any>({});
-  const [date, setDate] = useState<string>(
-    moment(new Date()).format("YYYY-MM-DD")
-  );
+  const [date, setDate] = React.useState<string>(dayjs().format());
   const [note, setNote] = useState<string>("");
   const [image, setImage] = useState<any>();
 
@@ -69,22 +81,14 @@ const CreateTransaction = memo(({ route }: any) => {
 
   const [tabActive, setTabActive] = useState<number>(0);
   const [showDateModal, setShowDateModal] = useState<boolean>(false);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState<boolean>(false);
   const [goback, setGoback] = useState<string>(ROUTES.Dashboard);
-
-  // const {
-  //   open: imageOpen,
-  //   visible: imageVisible,
-  //   close: imageClose,
-  //   transY: imageTransy,
-  // } = useModalAnimation();
 
   const [takePhoto, choosePhoto] = useImagePicker(setImage);
 
-  // TODO: List wallet to transfer
-  // const wallets = useSelector((state: IState) => state.dataReducer.wallets);
-
   const user = useSelector((state: IState) => state.masterReducer.user);
+  const now = new Date();
+  const max = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   React.useEffect(() => {
     if (route.params?.route) {
@@ -114,12 +118,6 @@ const CreateTransaction = memo(({ route }: any) => {
     route.params?.walletFrom,
     route.params?.walletTo,
   ]);
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => <HeaderButton onPress={onGoBack} />,
-    });
-  }, []);
 
   /**
    * Update category
@@ -156,29 +154,25 @@ const CreateTransaction = memo(({ route }: any) => {
   };
 
   /**
-   * Navigate to previous screen
-   */
-  const onGoBack = () => {
-    navigation.goBack();
-  };
-
-  /**
    * Navigate to select category screen
    */
   const onAddTransactionCategory = useCallback(() => {
     const params = {
       route: ROUTES.CreateTransaction,
       category: category,
-      tabActive: tabActive,
+      type:
+        tabActive === 0
+          ? Category_Types_Enum.Expense
+          : Category_Types_Enum.Income,
     };
-    navigation.navigate(ROUTES.AddTransactionCategory, params);
+    navigate(ROUTES.AddTransactionCategory, params);
   }, [category, tabActive]);
 
   /**
    * Navigate to select wallet screen
    */
   const onAddTransactionWallet = useCallback(() => {
-    navigation.navigate(ROUTES.AddTransactionWallets);
+    navigate(ROUTES.AddTransactionWallets);
   }, []);
 
   /**
@@ -186,7 +180,7 @@ const CreateTransaction = memo(({ route }: any) => {
    */
   const onAddTransactionWalletFrom = useCallback(() => {
     const params = { type: 1 };
-    navigation.navigate(ROUTES.AddTransactionWallets, params);
+    navigate(ROUTES.AddTransactionWallets, params);
   }, []);
 
   /**
@@ -194,7 +188,7 @@ const CreateTransaction = memo(({ route }: any) => {
    */
   const onAddTransactionWalletTo = useCallback(() => {
     const params = { type: 2 };
-    navigation.navigate(ROUTES.AddTransactionWallets, params);
+    navigate(ROUTES.AddTransactionWallets, params);
   }, []);
 
   /**
@@ -202,15 +196,8 @@ const CreateTransaction = memo(({ route }: any) => {
    */
   const onAddTransactionNote = useCallback(() => {
     const noteContent = { note: note };
-    navigation.navigate(ROUTES.AddTransactionNote, noteContent);
+    navigate(ROUTES.AddTransactionNote, noteContent);
   }, [note]);
-
-  /**
-   * Select date
-   */
-  const onSelectDate = () => {
-    setShowDateModal(true);
-  };
 
   const onChoseDate = (item: any) => {
     if (item.dateString) {
@@ -236,7 +223,7 @@ const CreateTransaction = memo(({ route }: any) => {
           });
           dispatch(dashboardActions.onDashboardRequest());
           setIsLoading(false);
-          navigation.navigate(goback);
+          navigate(goback);
           break;
         case 1:
           await apiCreateTransaction({
@@ -250,7 +237,7 @@ const CreateTransaction = memo(({ route }: any) => {
           });
           dispatch(dashboardActions.onDashboardRequest());
           setIsLoading(false);
-          navigation.navigate(goback);
+          navigate(goback);
           break;
         case 2:
           if (walletFrom.id == walletTo.id) {
@@ -273,7 +260,7 @@ const CreateTransaction = memo(({ route }: any) => {
             });
             dispatch(dashboardActions.onDashboardRequest());
             setIsLoading(false);
-            navigation.navigate(goback);
+            navigate(goback);
           }
           break;
         default:
@@ -288,7 +275,7 @@ const CreateTransaction = memo(({ route }: any) => {
           });
           dispatch(dashboardActions.onDashboardRequest());
           setIsLoading(false);
-          navigation.navigate(goback);
+          navigate(goback);
           break;
       }
       // Store category and wallet for transaction later
@@ -303,6 +290,7 @@ const CreateTransaction = memo(({ route }: any) => {
 
   const onOpenKeyboard = () => {
     setVisible(true);
+    openKeyboard();
   };
 
   const onCloseKeyboard = () => {
@@ -317,11 +305,16 @@ const CreateTransaction = memo(({ route }: any) => {
     setBalance(value);
   };
 
+  const onDone = React.useCallback((value: number) => {
+    setBalance(value);
+    setVisible(false);
+    closeKeyBoard();
+  }, []);
+
   const disableButtonCreate = () => {
     if (!category || !category.id) {
       return true;
     }
-    // (!walletTo.name || !walletFrom.name)
     if (!wallet.name) {
       return true;
     }
@@ -332,32 +325,12 @@ const CreateTransaction = memo(({ route }: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
-      <View style={styles.tabView}>
-        {/* 
-        * hind transfer
-        {
-          wallets.length > 1 ?
-            <AnimatedTab
-              onPressTab1={() => setTabActive(0)}
-              onPressTab2={() => setTabActive(1)}
-              onPressTab3={() => setTabActive(2)}
-              titleTab1={"Expenses"}
-              titleTab2={"Income"}
-              titleTab3={"Transfer"}
-            />
-            :
-            <Animated2Tab
-              onPressTab1={() => setTabActive(0)}
-              onPressTab2={() => setTabActive(1)}
-              titleTab1={"Expenses"}
-              titleTab2={"Income"}
-            />
-        } */}
+    <Container>
+      <Layout style={[styles.tabView, { paddingTop: top }]}>
+        <TopNavigation
+          title="Create Transaction"
+          accessoryLeft={<NavigationAction />}
+        />
         <Animated2Tab
           onPressTab1={() => {
             setTabActive(0);
@@ -370,23 +343,25 @@ const CreateTransaction = memo(({ route }: any) => {
           titleTab1={"Expenses"}
           titleTab2={"Income"}
         />
-      </View>
-      <ScrollView>
+      </Layout>
+      <Content>
         <TouchableWithoutFeedback onPress={onOpenKeyboard}>
           <View style={styles.inputView}>
-            {tabActive === 0 ? (
-              <Text size={34} lineHeight={41} bold color={colors.red}>
-                -{visible ? tmpBalance : format(balance)}
-              </Text>
-            ) : tabActive === 1 ? (
-              <Text size={34} lineHeight={41} bold color={colors.bleuDeFrance}>
-                +{visible ? tmpBalance : format(balance)}
-              </Text>
-            ) : (
-              <Text size={34} lineHeight={41} bold color={colors.emerald}>
-                {visible ? tmpBalance : format(balance)}
-              </Text>
-            )}
+            <Text
+              size={tmpBalance.length > 13 ? 44 - tmpBalance.length : 34}
+              lineHeight={41}
+              bold
+              color={
+                tabActive === 0
+                  ? colors.red
+                  : tabActive === 1
+                  ? colors.bleuDeFrance
+                  : colors.emerald
+              }
+            >
+              {tabActive === 0 ? "-" : tabActive === 1 ? "+" : ""}
+              {visible ? tmpBalance : format(balance)}
+            </Text>
             {currency !== null && (
               <View style={styles.currencyView}>
                 <Text size={14} color={colors.grey1}>
@@ -397,7 +372,7 @@ const CreateTransaction = memo(({ route }: any) => {
           </View>
         </TouchableWithoutFeedback>
         {tabActive == 2 ? (
-          <View style={styles.contentView}>
+          <Layout style={styles.contentView}>
             <AnimatedInput
               onPress={onAddTransactionWalletFrom}
               imageIcon={
@@ -420,9 +395,9 @@ const CreateTransaction = memo(({ route }: any) => {
               nonBorder={true}
             />
             <AnimatedInput
-              onPress={onSelectDate}
+              onPress={open}
               icon={ICON.calendar}
-              value={date}
+              value={dayjs(date).format("DD-MM-YYYY")}
               placeholder={"Date"}
             />
             <AnimatedInput
@@ -431,10 +406,10 @@ const CreateTransaction = memo(({ route }: any) => {
               value={note}
               placeholder={"Note"}
             />
-          </View>
+          </Layout>
         ) : (
           <>
-            <View style={styles.contentView}>
+            <Layout style={styles.contentView}>
               <AnimatedInput
                 onPress={onAddTransactionCategory}
                 imageIcon={
@@ -457,9 +432,9 @@ const CreateTransaction = memo(({ route }: any) => {
                 nonBorder={true}
               />
               <AnimatedInput
-                onPress={onSelectDate}
+                onPress={open}
                 icon={ICON.calendar}
-                value={date}
+                value={dayjs(date).format("DD/MM/YYYY")}
                 placeholder={"Date"}
               />
               <AnimatedInput
@@ -468,8 +443,8 @@ const CreateTransaction = memo(({ route }: any) => {
                 value={note}
                 placeholder={"Note"}
               />
-            </View>
-            <View style={styles.contentView}>
+            </Layout>
+            {/* <View style={styles.contentView}>
               <AnimatedInput
                 icon={ICON.calendar}
                 value={"Attach Photo"}
@@ -485,14 +460,13 @@ const CreateTransaction = memo(({ route }: any) => {
                   />
                 </View>
               )}
-            </View>
+            </View> */}
           </>
         )}
-      </ScrollView>
-      <ButtonBottomAnimated
-        visible={visible}
+      </Content>
+      <ButtonBottom
+        title="Create"
         disabled={disableButtonCreate()}
-        title={"Create"}
         onPress={onCreate}
       />
       <Modal visible={isLoading} statusBarTranslucent transparent>
@@ -500,30 +474,21 @@ const CreateTransaction = memo(({ route }: any) => {
           <ActivityIndicator size="large" color={colors.redCrayola} />
         </View>
       </Modal>
-      {/* <Modal visible={imageVisible} transparent onRequestClose={imageClose}>
-        <ModalSlideBottom onClose={imageClose} transY={imageTransy}>
-          <ModalImagePicker
-            takePhoto={takePhoto}
-            choosePhoto={choosePhoto}
-            close={imageClose}
-          />
-        </ModalSlideBottom>
-      </Modal> */}
-      <DatePickerModalize
-        visible={showDateModal}
-        onSelect={onChoseDate}
-        onApply={() => setShowDateModal(false)}
-        maxDate={new Date()}
+      <ModalizeCalendar
+        ref={modalizeRef}
+        title="Select Date"
+        date={dayjs(date).toDate()}
+        onChangeDate={(date) => setDate(dayjs(date).format())}
+        max={max}
       />
-      <CalculatorItem
-        onClose={onCloseKeyboard}
-        onRequestClose={onCloseKeyboard}
+      <ModalizeKeyboard
+        ref={modalizeKeyboard}
+        onOverlayPress={onCloseKeyboard}
         onTextChange={onTextChange}
         onCalc={onHandleCalculation}
-        onAccept={onCloseKeyboard}
-        visible={visible}
+        onDone={onDone}
       />
-    </View>
+    </Container>
   );
 });
 
@@ -536,15 +501,12 @@ const styles = StyleSheet.create({
   },
   contentView: {
     marginHorizontal: 16,
-    backgroundColor: colors.white,
     borderRadius: 12,
     paddingRight: 21,
     paddingLeft: 18,
     marginBottom: 18,
   },
   tabView: {
-    backgroundColor: colors.white,
-    paddingTop: 4,
     paddingBottom: 12,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,

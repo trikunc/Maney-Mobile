@@ -1,27 +1,24 @@
-import 'react-native-gesture-handler';
-import * as Sentry from 'sentry-expo';
-import { LogBox } from 'react-native';
-import { enableScreens } from 'react-native-screens';
-import { setTestDeviceIDAsync } from 'expo-ads-admob';
-import firebase from 'firebase';
-// import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
-import { firebaseConfig } from './src/config/firebase';
-import App from './src/Entrypoint';
+import "react-native-gesture-handler";
+import * as Sentry from "sentry-expo";
+import { LogBox } from "react-native";
+import { enableScreens } from "react-native-screens";
+import firebase from "firebase";
+import { firebaseConfig } from "./src/config/firebase";
+import App from "./src/Entrypoint";
+import { patchFlatListProps } from "react-native-web-refresh-control";
 
 // Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}else {
-  firebase.app(); 
-}
+firebase.initializeApp(firebaseConfig);
 
 /* Enable when release */
 // setTestDeviceIDAsync('EMULATOR');
 
+patchFlatListProps();
+
 // Log error
 Sentry.init({
-  dsn: "https://b1d17a2a1fd241f9afed9b94af99ff46@o1016961.ingest.sentry.io/5982475",
+  dsn:
+    "https://be700e1df8104cb28479551ad9ff6849@o489325.ingest.sentry.io/5551375",
   enableInExpoDevelopment: true,
   debug: true,
 });

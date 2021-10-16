@@ -1,2 +1,2 @@
-import NavigationStack from './Main';
+import NavigationStack from "./AppContainer";
 export default NavigationStack;

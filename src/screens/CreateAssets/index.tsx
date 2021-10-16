@@ -8,7 +8,6 @@ import { currencyFormat } from "@utils/formatNumber";
 import { IMAGE_ICON } from "@assets/Icon";
 import { apiCreateWallet } from "@api/index";
 import ROUTES from "@utils/routes";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
 import colors from "@utils/colors";
 import ButtonBottom from "@elements/Button/ButtonBottom";
 import AnimatedInput from "@components/AnimatedInput";
@@ -17,8 +16,8 @@ import SvgEdit from "@svg/Icon/SvgNote";
 import AdBanner from "@components/AdBanner";
 import { CURRENCY, TYPE_WALLET, WALLET } from "@store/models";
 import { useDispatch, useSelector } from "react-redux";
-import { onAddWalletResponse } from "../../store/actions/commonActions";
-import { IMasterState } from '../../store/models/reducers/master';
+import { onAddWalletResponse } from "@store/actions/commonActions";
+import { IMasterState } from "@store/models/reducers/master";
 interface IState {
   masterReducer: IMasterState;
 }
@@ -42,15 +41,17 @@ const CreateAssets = memo(({ route }: any) => {
     if (route.params?.name) {
       setNameAccount(route.params?.name);
     }
-    if (route.params?.balance) {
-      setBalance(route.params?.balance);
-      
-    }
+    setBalance(route.params?.balance || 0);
     if (route.params?.typeWallet) {
       setWalletType(route.params?.typeWallet);
     }
-    setCurrency(user.currency)
-  }, [route.params?.name, route.params?.balance, route.params?.typeWallet, user]);
+    setCurrency(user.currency);
+  }, [
+    route.params?.name,
+    route.params?.balance,
+    route.params?.typeWallet,
+    user,
+  ]);
 
   const onCreateAssetsName = () => {
     navigation.navigate(ROUTES.CreateAssetsName, {
@@ -58,7 +59,9 @@ const CreateAssets = memo(({ route }: any) => {
     });
   };
   const onCreateAssetsBalance = () => {
-    let resCurrency = { currency: currency?.currency || currency?.currency, route: ROUTES.CreateAssets };
+    let resCurrency = {
+      route: ROUTES.CreateAssets,
+    };
     navigation.navigate(ROUTES.CreateAssetsBalance, resCurrency);
   };
   const onCreateAssetsType = () => {
@@ -84,8 +87,8 @@ const CreateAssets = memo(({ route }: any) => {
         typeWalletId: response?.typeWalletId,
         balance: response?.balance,
         // @ts-ignore
-        typeWallet: walletType
-      }
+        typeWallet: walletType,
+      };
       setIsLoading(false);
       dispatch(onAddWalletResponse(action));
       navigation.navigate(goback);
@@ -96,8 +99,7 @@ const CreateAssets = memo(({ route }: any) => {
   };
 
   const buttonCreate = () => {
-    const disabled =
-      nameAccount === "" || walletType === undefined;
+    const disabled = nameAccount === "" || walletType === undefined;
     return (
       <ButtonBottom onPress={onCreate} disabled={disabled} title={"Create"} />
     );
@@ -105,10 +107,6 @@ const CreateAssets = memo(({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
       <AdBanner />
       <View style={styles.contentView}>
         <AnimatedInput
@@ -117,24 +115,26 @@ const CreateAssets = memo(({ route }: any) => {
           value={nameAccount}
           placeholder={"Name Account"}
         />
+        {currency ? (
           <AnimatedInput
-            onPress={onCreateAssetsType}
-            imageIcon={walletType?.icon ? IMAGE_ICON[`${walletType?.icon}`] : IMAGE_ICON.wallet}
-            value={walletType?.name ? walletType.name : ""}
-            placeholder={"Type"}
-            nonBorder={true}
+            onPress={onCreateAssetsBalance}
+            value={currencyFormat(balance, currency)}
+            placeholder={"Amount"}
+            currency={currency.currency}
+            icon={<SvgCalculator />}
           />
-        {
-          currency ?
-            <AnimatedInput
-              onPress={onCreateAssetsBalance}
-              value={currencyFormat(balance, currency)}
-              placeholder={"Amount"}
-              currency={currency.currency}
-              icon={<SvgCalculator />}
-            />
-            : null
-        }
+        ) : null}
+        <AnimatedInput
+          onPress={onCreateAssetsType}
+          imageIcon={
+            walletType?.icon
+              ? IMAGE_ICON[`${walletType?.icon}`]
+              : IMAGE_ICON.wallet
+          }
+          value={walletType?.name ? walletType.name : ""}
+          placeholder={"Type"}
+          nonBorder={true}
+        />
       </View>
       {buttonCreate()}
       <Modal visible={isLoading} statusBarTranslucent={true} transparent={true}>

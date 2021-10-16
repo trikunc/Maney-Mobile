@@ -1,5 +1,3 @@
-import colors from "@utils/colors";
-import { widthScreen } from "@utils/dimensions";
 import * as React from "react";
 import {
   LayoutRectangle,
@@ -8,10 +6,12 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { Button } from "./Button";
-import { Display } from "./Display";
+import { Button, Layout } from "@ui-kitten/components";
+import { getBottomSpace } from "react-native-iphone-x-helper";
+import ButtonCalculator from "./ButtonCalculator";
 import { CalculatorCommonProps, DefaultCommonProps } from "./interface";
 import { formatNumber } from "./utils";
+import colors from "@utils/colors";
 
 enum ActionEnum {
   CLEAR,
@@ -48,6 +48,7 @@ export interface CalculatorProps extends CalculatorCommonProps {
    * Accept button click event.
    */
   onAccept?: (value: number, text: string) => void;
+  onDone?: (value: number, text: string) => void;
 
   /**
    * Hide display text field.
@@ -58,7 +59,6 @@ export interface CalculatorProps extends CalculatorCommonProps {
 interface State {
   text: string;
   done: boolean;
-  btnSize?: ButtonSize;
 }
 
 interface CalcStack {
@@ -79,7 +79,6 @@ export class Calculator extends React.Component<CalculatorProps, State> {
 
   calculated: boolean = false;
   stacks: CalcStack[] = [];
-  display?: Display;
 
   constructor(props: CalculatorProps) {
     super(props);
@@ -134,48 +133,21 @@ export class Calculator extends React.Component<CalculatorProps, State> {
   }
 
   render() {
-    const { style } = this.props;
-    return (
-      <View
-        style={style}
-        onLayout={(e) => {
-          const btnSize = this.getButtonSize(e.nativeEvent.layout);
-          this.setState({ btnSize }, () => {
-            if (this.display) {
-              this.display.tryNewSize(true);
-            }
-          });
-        }}
-      >
-        {this.renderMain()}
-      </View>
-    );
+    return this.renderMain();
   }
 
   renderMain() {
-    const { text, btnSize } = this.state;
+    const { text } = this.state;
     const {
       decimalSeparator,
-      calcButtonBackgroundColor,
-      calcButtonColor,
-      acceptButtonBackgroundColor,
-      acceptButtonColor,
-      displayBackgroundColor,
-      displayColor,
-      borderColor,
-      fontSize,
-      width,
       hasAcceptButton,
       hideDisplay,
       displayTextAlign,
       noDecimal,
+      onDone,
     } = this.props;
 
     const done = this.state.done && hasAcceptButton;
-
-    if (!btnSize) {
-      return null;
-    }
 
     const handlePressButton = (value: any, decimalSeparator: any) => {
       if (this.calculated) {
@@ -245,7 +217,13 @@ export class Calculator extends React.Component<CalculatorProps, State> {
     };
 
     const calculate = () => {
-      const { onCalc, onAccept, hasAcceptButton, roundTo = 2 } = this.props;
+      const {
+        onCalc,
+        onAccept,
+        onDone,
+        hasAcceptButton,
+        roundTo = 2,
+      } = this.props;
 
       if (!this.stacks.length) {
         this.clear();
@@ -287,105 +265,98 @@ export class Calculator extends React.Component<CalculatorProps, State> {
       });
     };
 
+    const handleDone = () => {
+      const num = eval(this.stacks.map((x) => x.value).join("") || "0");
+      const value = Math.round(num * 10 ** 2) / 10 ** 2;
+      const x = this.format(value);
+
+      onDone && onDone(value, x);
+    };
+
     return (
       <View>
-        {!hideDisplay && (
-          <View
-            style={[
-              Styles.displayContainer,
-              {
-                backgroundColor: displayBackgroundColor,
-                borderColor,
-                width,
-                height: btnSize.displayHeight,
-                marginBottom: 16,
-              },
-            ]}
-          >
-            <Display
-              height={btnSize.displayHeight}
-              width={btnSize.width * 4 - 20}
-              value={text}
-              ref={(e) => {
-                this.display = e as Display;
-              }}
-              style={{ color: displayColor, textAlign: displayTextAlign }}
-            />
-          </View>
+        {onDone && (
+          <Button children="Done" style={styles.button} onPress={handleDone} />
         )}
-        <View style={Styles.buttonView}>
-          {this.renderActionButton(btnSize, "C", ActionEnum.CLEAR, true)}
-          {this.renderActionButton(btnSize, "/", ActionEnum.DIVIDE)}
-          {this.renderActionButton(btnSize, "❮", ActionEnum.BACK)}
-          {this.renderActionButton(btnSize, "+", ActionEnum.PLUS)}
-        </View>
-        <View style={Styles.buttonView}>
-          {this.renderNumberButton(btnSize, "7", true)}
-          {this.renderNumberButton(btnSize, "8")}
-          {this.renderNumberButton(btnSize, "9")}
-          {this.renderActionButton(btnSize, "-", ActionEnum.MINUS)}
-        </View>
-        <View style={Styles.buttonView}>
-          {this.renderNumberButton(btnSize, "4", true)}
-          {this.renderNumberButton(btnSize, "5")}
-          {this.renderNumberButton(btnSize, "6")}
-          {this.renderActionButton(btnSize, "*", ActionEnum.MULTIPLY)}
-        </View>
-        <View style={Styles.row}>
-          <View style={Styles.buttonView}>
-            {this.renderNumberButton(btnSize, "1", true)}
-            {this.renderNumberButton(btnSize, "2")}
-            {this.renderNumberButton(btnSize, "3")}
-            {this.renderActionButton(btnSize, "÷", ActionEnum.DIVIDE)}
+        <Layout style={styles.keyBoard}>
+          <View style={styles.buttonView}>
+            {this.renderActionButton("clear", ActionEnum.CLEAR)}
+            {this.renderActionButton("plusSubtract", ActionEnum.DIVIDE)}
+            {this.renderActionButton("delete", ActionEnum.BACK)}
+            {this.renderActionButton(
+              "plus",
+              ActionEnum.PLUS,
+              "medium",
+              "action"
+            )}
           </View>
-          {noDecimal ? (
-            <View style={Styles.buttonView}>
-              {this.renderNumberButton(btnSize, "0", true)}
-              {this.renderNumberButton(btnSize, "000", false, 2)}
+          <View style={styles.buttonView}>
+            {this.renderNumberButton("7")}
+            {this.renderNumberButton("8")}
+            {this.renderNumberButton("9")}
+            {this.renderActionButton(
+              "minus",
+              ActionEnum.MINUS,
+              "medium",
+              "action"
+            )}
+          </View>
+          <View style={styles.buttonView}>
+            {this.renderNumberButton("4")}
+            {this.renderNumberButton("5")}
+            {this.renderNumberButton("6")}
+            {this.renderActionButton(
+              "multiply",
+              ActionEnum.MULTIPLY,
+              "medium",
+              "action"
+            )}
+          </View>
+          <View style={styles.row}>
+            <View style={styles.buttonView}>
+              {this.renderNumberButton("1")}
+              {this.renderNumberButton("2")}
+              {this.renderNumberButton("3")}
+              {this.renderActionButton(
+                "divide",
+                ActionEnum.DIVIDE,
+                "medium",
+                "action"
+              )}
             </View>
-          ) : (
-            <View style={Styles.buttonView}>
-              <Button
-                style={{ width: "48%", flex: 0, marginRight: 8 }}
+            <View style={styles.buttonView}>
+              <ButtonCalculator
+                size="giant"
                 onPress={() => handlePressButton("0", true)}
                 icon={"0"}
               />
-              {this.renderNumberButton(btnSize, decimalSeparator as string)}
-              <Button
-                style={{
-                  backgroundColor: colors.purplePlum,
-                }}
+              {/* <ButtonCalculator
+                onPress={() => handlePressButton(".", true)}
+                icon={"dot"}
+              /> */}
+              {this.renderNumberButton(decimalSeparator as string)}
+              <ButtonCalculator
                 onPress={calculate}
-                icon={done ? "↲" : "="}
+                icon={"checkMark"}
+                size="medium"
+                status="info"
               />
             </View>
-          )}
-        </View>
+          </View>
+        </Layout>
       </View>
     );
   }
 
-  renderNumberButton(
-    btnSize: ButtonSize,
-    value: string,
-    mostLeft: boolean = false,
-    scaleX: number = 1
-  ) {
-    const {
-      decimalSeparator,
-      numericButtonBackgroundColor,
-      numericButtonColor,
-      borderColor,
-      fontSize,
-    } = this.props;
+  renderNumberButton(value: string, size?: "large" | "medium") {
+    const { decimalSeparator } = this.props;
 
     return (
-      <Button
-        style={{ marginRight: 8, marginBottom: 8 }}
-        icon={value}
+      <ButtonCalculator
+        icon={value === (decimalSeparator as string) ? "dot" : value}
+        size={size}
         onPress={() => {
           if (this.calculated) {
-            // clear answer replace with entered number
             this.calculated = false;
             this.stacks = [
               {
@@ -454,23 +425,16 @@ export class Calculator extends React.Component<CalculatorProps, State> {
   }
 
   renderActionButton(
-    btnSize: ButtonSize,
     value: string,
     action: ActionEnum,
-    mostLeft: boolean = false
+    size?: "large" | "medium",
+    status?: "control" | "info" | "action"
   ) {
-    const {
-      actionButtonBackgroundColor,
-      actionButtonColor,
-      borderColor,
-      fontSize,
-    } = this.props;
-
     return (
-      <Button
-        style={{ marginRight: 8, marginBottom: 8 }}
+      <ButtonCalculator
         icon={value}
-        color={colors.purplePlum}
+        size={size}
+        status={status}
         onPress={() => {
           if (this.calculated) {
             // continue to use this answer
@@ -651,26 +615,27 @@ export class Calculator extends React.Component<CalculatorProps, State> {
   }
 }
 
-const Styles = StyleSheet.create({
-  displayContainer: {
-    borderStyle: "solid",
-    borderWidth: 1,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 0,
-    paddingTop: 0,
-    margin: 0,
-  },
+const styles = StyleSheet.create({
   row: {
-    flexDirection: "row",
-    alignContent: "stretch",
     flexWrap: "wrap",
   },
   buttonView: {
-    width: widthScreen,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    //marginTop: 8,
+    paddingHorizontal: 12,
+    width: "100%",
+  },
+  button: {
+    marginVertical: 12,
+    marginHorizontal: 16,
+  },
+  keyBoard: {
+    paddingTop: 16,
+    paddingBottom: getBottomSpace() + 12,
+    shadowColor: colors.black,
+    shadowOffset: { width: 1, height: 5 },
+    shadowRadius: 4,
+    shadowOpacity: 0.5,
+    elevation: 5,
   },
 });

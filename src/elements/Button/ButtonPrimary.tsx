@@ -49,7 +49,6 @@ export default ButtonPrimary;
 
 const styles = StyleSheet.create({
   buttonPrimacy: {
-    width: 285,
     height: 48,
     borderRadius: 24,
     justifyContent: "center",

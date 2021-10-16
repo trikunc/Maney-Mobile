@@ -1,31 +1,23 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import FONTS from "@utils/fonts";
-import Text from "@elements/Text";
-import colors from "@utils/colors";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
-import ButtonPrimary from "@elements/Button/ButtonPrimary";
-// @ts-ignore
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 // @ts-ignore
 import ROUTES from "@utils/routes";
-import HeaderList from "@screens/Dashboard/components/HeaderList";
-import ButtonPrimaryIcon from "@elements/Button/ButtonPrimaryIcon";
-import { ICON } from "@svg/Icon";
-import SvgBell from "@svg/Icon/SvgBell";
-import SvgClose from "@svg/Icon/SvgClose";
-import ButtonIconBig from "@elements/Button/ButtonIconBig";
+import AdBanner from "@components/AdBanner";
+import Container from "@components/Container";
 import LoadingView from "@elements/LoadingView";
-import TransactionItem from "@components/BoxTransactionItem/TransactionItem";
+import Transaction from "@components/Transaction";
+import TransactionEmpty from "@components/TransactionEmpty";
+import NavigationAction from "@components/NavigationAction";
+import HeaderList from "@screens/Dashboard/components/HeaderList";
 // @ts-ignore
-import { useDispatch, useSelector } from "react-redux";
 import { IMasterState } from "@store/models/reducers/master";
 import { IDataState } from "@store/models/reducers/data";
 import { ILoading } from "@store/models/reducers/loading";
-import AdBanner from "@components/AdBanner";
 import { WALLET } from "@store/models";
-import TransactionEmpty from "@components/TransactionEmpty";
-import { getBottomSpace } from "react-native-iphone-x-helper";
+import Text from "@components/Text";
+import { Button, Layout } from "@ui-kitten/components";
 
 interface IState {
   loadingReducer: ILoading;
@@ -37,41 +29,30 @@ const Dashboard = memo(() => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const [showNotification, setShowNotification] = useState<boolean>(true);
-
   const loading = useSelector(
     (state: IState) => state.loadingReducer.isLoading
   );
 
   const user = useSelector((state: IState) => state.masterReducer.user);
-
-  // const [wallets] = useState(MY_WALLET_DATA); //Debug purpose
   const wallets = useSelector((state: IState) => state.dataReducer.wallets);
 
   const walletData = [...wallets, { defaultWallet: true }];
 
-  // const latestTransactions = LATEST_TRANSACTION_EXAMPLE_DATA; //Debug purpose
   const latestTransactions = useSelector(
     (state: IState) => state.dataReducer.latestTransactions
   );
 
-  const onCreateAssets = useCallback(() => {
+  const onCreateAssets = React.useCallback(() => {
     const params = { route: ROUTES.Dashboard };
     navigation.navigate(ROUTES.CreateAssets, params);
   }, []);
 
-  const onAddTransaction = useCallback(() => {
+  const onAddTransaction = React.useCallback(() => {
     const params = { route: ROUTES.Dashboard };
     navigation.navigate(ROUTES.CreateTransaction, params);
   }, []);
 
-  const onNotification = useCallback(() => {}, []);
-
-  const onCloseNotification = useCallback(() => {
-    setShowNotification(false);
-  }, []);
-
-  const onPressWallet = useCallback(
+  const onPressWallet = React.useCallback(
     (item: WALLET) => {
       let params = { wallet: item };
       navigation.navigate(ROUTES.Transaction, params);
@@ -79,110 +60,93 @@ const Dashboard = memo(() => {
     [wallets, latestTransactions]
   );
 
-  const onClickAddWallet = useCallback(() => {
+  const onClickAddWallet = React.useCallback(() => {
     navigation.navigate(ROUTES.CreateAssets);
   }, [navigation]);
 
-  const onPressSeeAll = useCallback(() => {
+  const onPressSeeAll = React.useCallback(() => {
     navigation.navigate(ROUTES.MyWallets);
   }, []);
 
-  const onPressSeeAllTransaction = useCallback(() => {
+  const onPressSeeAllTransaction = React.useCallback(() => {
     navigation.navigate(ROUTES.Transaction);
   }, []);
 
   const assetsNone = () => {
     return (
-      <View style={styles.assetsNone}>
-        <Text
-          size={22}
-          lineHeight={37}
-          bold
-          center
-          color={colors.grey1}
-          marginHorizontal={16}
-        >
+      <Layout style={styles.assetsNone}>
+        <Text category="title3" marginHorizontal={38} center>
           You don’t have any wallets!
         </Text>
-        <ButtonPrimary
+        <Button
           onPress={onCreateAssets}
-          title={"Create Now"}
-          titleStyle={styles.textCreateNow}
+          children="Create Now"
           style={styles.buttonCreate}
         />
-      </View>
+      </Layout>
     );
   };
 
   const renderNoneTransactions = () => {
-    return <TransactionEmpty onPress={() => onAddTransaction()} />;
+    return (
+      <TransactionEmpty
+        style={styles.transactionEmpty}
+        onPress={() => onAddTransaction()}
+      />
+    );
   };
 
   const renderLatestTransactions = () => {
     return (
-      <View style={styles.latestTransactions}>
+      <Layout style={styles.latestTransactions}>
         <View style={styles.setRowLine}>
-          <Text size={18} lineHeight={24} semiBold color={colors.grey1}>
+          <Text category="title4" uppercase>
             Latest Transactions
           </Text>
           <TouchableOpacity
             onPress={onPressSeeAllTransaction}
             activeOpacity={0.7}
           >
-            <Text size={17} lineHeight={24} semiBold color={colors.purplePlum}>
+            <Text category="headline" status="info">
               See All
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={{ paddingHorizontal: 16 }}>
-          {latestTransactions.map((item: any, index: number) => {
-            if (!user) return null;
-            const onPressEditTransaction = () => {
-              navigation.navigate(ROUTES.EditTransaction, item);
-            };
-            return (
-              <TransactionItem
-                onPress={onPressEditTransaction}
-                {...item}
-                key={index}
-                currency={user.currency}
-              />
-            );
-          })}
-        </View>
-      </View>
+        <Layout level="3" style={{ height: 1 }} />
+        {latestTransactions.map((item: any, index: number) => {
+          const onPress = () => {
+            navigation.navigate(ROUTES.EditTransaction, item);
+          };
+
+          return (
+            index < 4 && (
+              <Transaction key={index} onPress={onPress} item={item} />
+            )
+          );
+        })}
+      </Layout>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
+    <Container level="2" paddingTop>
       {loading ? (
         <LoadingView isLoading={loading} />
       ) : (
         <>
+          <View style={styles.topView}>
+            <Text uppercase category="title4">
+              My Wallets
+            </Text>
+            {wallets.length !== 0 && (
+              <TouchableOpacity onPress={onPressSeeAll} activeOpacity={0.7}>
+                <Text category="headline" status="info">
+                  See All
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.topView}>
-              <Text size={18} lineHeight={24} semiBold color={colors.grey1}>
-                My Wallets
-              </Text>
-              {wallets.length !== 0 && (
-                <TouchableOpacity onPress={onPressSeeAll} activeOpacity={0.7}>
-                  <Text
-                    size={17}
-                    lineHeight={24}
-                    semiBold
-                    color={colors.purplePlum}
-                    style={{ fontFamily: FONTS.MUKTA.Bold }}
-                  >
-                    See All
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
             {wallets.length === 0 ? (
               assetsNone()
             ) : (
@@ -198,136 +162,67 @@ const Dashboard = memo(() => {
                 <View style={{ marginBottom: 16 }}>
                   {latestTransactions.length === 0
                     ? renderNoneTransactions()
-                    : // : renderNoneTransactions()
-                      renderLatestTransactions()}
+                    : renderLatestTransactions()}
                 </View>
               </>
             )}
+            <AdBanner
+              bannerSize="largeBanner"
+              marginHorizontal={16}
+              backgroundColor="white"
+            />
           </ScrollView>
-          {showNotification && wallets.length !== 0 && (
-            <View style={styles.notificationBox}>
-              <Text
-                size={17}
-                lineHeight={22}
-                color={colors.grey1}
-                marginHorizontal={40}
-                semiBold
-                center
-              >
-                Turn on notifications to get notified instantly
-              </Text>
-              <ButtonPrimaryIcon
-                underlayColor={colors.mediumAquamarine}
-                onPress={onNotification}
-                titleStyle={styles.textNotification}
-                style={styles.buttonNotification}
-                title={"Turn on notifications"}
-                iconRight={<SvgBell />}
-              />
-              <TouchableOpacity
-                style={styles.svgClose}
-                onPress={onCloseNotification}
-                activeOpacity={1}
-              >
-                <SvgClose />
-              </TouchableOpacity>
-            </View>
-          )}
           {latestTransactions.length !== 0 && (
-            <ButtonIconBig
+            <NavigationAction
+              status="rounded"
+              size="giant"
               onPress={onAddTransaction}
-              icon={ICON.add}
-              style={styles.buttonAddTransaction}
+              style={styles.button}
             />
           )}
         </>
       )}
-      <AdBanner />
-    </View>
+    </Container>
   );
 });
 
 export default Dashboard;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.snow,
-  },
   topView: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    marginTop: 18,
+    marginTop: 24,
     alignItems: "center",
   },
   assetsNone: {
-    backgroundColor: colors.white,
-    alignItems: "center",
     paddingBottom: 16,
     paddingTop: 23,
     borderRadius: 8,
-    marginTop: 16,
+    marginVertical: 16,
     marginHorizontal: 16,
   },
   buttonCreate: {
-    width: 172,
     marginTop: 16,
-  },
-  textCreateNow: {
-    fontFamily: FONTS.MUKTA.Bold,
-    fontSize: 16,
-  },
-  notificationBox: {
-    backgroundColor: colors.honeyDrew,
-    paddingTop: 24,
-    paddingBottom: 12,
-    alignItems: "center",
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginBottom: getBottomSpace() + 18,
-  },
-  textNotification: {
-    fontFamily: FONTS.MUKTA.Regular,
-    fontWeight: "500",
-    fontSize: 14,
-  },
-  buttonNotification: {
-    marginTop: 12,
-    width: 172,
-    height: 36,
-  },
-  svgClose: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    top: 0,
-    left: 0,
+    marginHorizontal: 86,
   },
   latestTransactions: {
-    backgroundColor: colors.white,
     borderRadius: 12,
     marginHorizontal: 16,
   },
   setRowLine: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    marginTop: 16,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.snow,
-    paddingBottom: 16,
+    justifyContent: "space-between",
+    padding: 16,
   },
-  buttonAddTransaction: {
+  button: {
     position: "absolute",
-    width: 56,
-    height: 56,
-    right: 8,
-    bottom: getBottomSpace() + 24,
-    marginBottom: 0,
+    right: 16,
+    bottom: 16,
+  },
+  transactionEmpty: {
+    marginHorizontal: 16,
   },
 });

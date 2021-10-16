@@ -4,7 +4,7 @@ import Text from "@elements/Text";
 import colors from "@utils/colors";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { currencyFormat } from "@utils/formatNumber";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
+import FocusAwareStatusBar from "@components/FocusAwareStatusBar";
 import BoxTransactionItem from "@components/BoxTransactionItem";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 import keyExtractor from "@utils/keyExtractor";
@@ -72,10 +72,7 @@ const ChartTransaction = memo(() => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.emerald}
-        barStyle={"light-content"}
-      />
+      <FocusAwareStatusBar barStyle="light-content" />
       <View style={styles.containerUnderHeader}>
         <Text bold lineHeight={34} size={28} color={colors.white} marginTop={8}>
           {currencyFormat(balance, currency)}

@@ -4,7 +4,6 @@ import colors from "@utils/colors";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import HeaderButton from "@elements/Header/HeaderButton";
 import { ICON } from "@svg/Icon";
-import FocusAwareStatusBar from "@elements/StatusBar/FocusAwareStatusBar";
 import LoadingView from "@elements/LoadingView";
 import AnalysisPage from "./components/AnalysisPage";
 import { useSelector } from "react-redux";
@@ -20,9 +19,8 @@ const ChartAnalysis = memo(({ route }: any) => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [frequency, setFrequency] = useState<object>({});
-  const currency = useSelector(
-    (state: IState) => state.masterReducer.user
-  ).currency;
+  const currency = useSelector((state: IState) => state.masterReducer.user)
+    .currency;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -53,10 +51,6 @@ const ChartAnalysis = memo(({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <FocusAwareStatusBar
-        backgroundColor={colors.white}
-        barStyle={"dark-content"}
-      />
       {loading ? (
         <LoadingView isLoading={loading} />
       ) : (
@@ -75,18 +69,6 @@ const ChartAnalysis = memo(({ route }: any) => {
           />
         </ScrollableTab>
       )}
-      {/* <Modal
-        visible={visible}
-        onRequestClose={close}
-        transparent
-        animationType={"none"}
-      >
-        <ModalSlideBottom onClose={close} transY={transY}>
-          <ModalFrequency
-            onChangeFrequency={(frequency) => onChangeFrequency(frequency)}
-          />
-        </ModalSlideBottom>
-      </Modal> */}
     </View>
   );
 });

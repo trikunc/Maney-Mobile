@@ -13,9 +13,6 @@ const ROUTES = {
   Chart: "Chart",
   ProfileBottomTab: "ProfileBottomTab",
   Profile: "Profile",
-  //Drawer Navigator
-  DrawerNavigator: "DrawerNavigator",
-  DrawerStack: "DrawerStack",
   //Create Assets
   CreateAssets: "CreateAssets",
   CreateAssetsName: "CreateAssetsName",
