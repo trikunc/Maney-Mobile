@@ -34,16 +34,16 @@ const ProfileNormal = memo(() => {
   const { modalRef, show, hide } = useModal();
 
   const data: SettingFragment[] = [
-    // {
-    //   title: "Dark Mode",
-    //   icon: "moon",
-    //   isToggle: true,
-    //   checked: checked,
-    //   onChange: () => {
-    //     setChecked();
-    //     toggleTheme();
-    //   },
-    // },
+    {
+      title: "Dark Mode",
+      icon: "moon",
+      isToggle: true,
+      checked: checked,
+      onChange: () => {
+        setChecked();
+        toggleTheme();
+      },
+    },
     // {
     //   title: "General",
     //   icon: "general",

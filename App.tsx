@@ -8,7 +8,11 @@ import App from "./src/Entrypoint";
 import { patchFlatListProps } from "react-native-web-refresh-control";
 
 // Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); 
+}
 
 /* Enable when release */
 // setTestDeviceIDAsync('EMULATOR');
@@ -18,7 +22,7 @@ patchFlatListProps();
 // Log error
 Sentry.init({
   dsn:
-    "https://be700e1df8104cb28479551ad9ff6849@o489325.ingest.sentry.io/5551375",
+    "https://b1d17a2a1fd241f9afed9b94af99ff46@o1016961.ingest.sentry.io/5982475",
   enableInExpoDevelopment: true,
   debug: true,
 });

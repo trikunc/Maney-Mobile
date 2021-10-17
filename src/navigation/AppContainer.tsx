@@ -31,7 +31,7 @@ import ChartAnalysis from "@screens/ChartAnalysis";
 import ChartTransaction from "@screens/ChartTransaction";
 import Splash from "@screens/Splash";
 import { enableScreens } from "react-native-screens";
-import TransactionScreen from "@screens/transaction/TransactionScreen";
+import TransactionScreen from "@screens/Transaction/TransactionScreen";
 
 const Stack = createStackNavigator();
 

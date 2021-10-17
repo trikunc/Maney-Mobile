@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "your-app-name",
-    "slug": "your-app-slug",
-    "version": "2.2.1",
+    "name": "Maney",
+    "slug": "maney-app",
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "facebookScheme": "fb000000000000000",
-    "facebookAppId": "000000000000000",
-    "facebookDisplayName": "your-fb-app-name",
+    "facebookScheme": "fb847156225947307",
+    "facebookAppId": "847156225947307",
+    "facebookDisplayName": "Maney",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -19,18 +19,18 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "usesAppleSignIn": true,
-      "bundleIdentifier": "your.package.bundle.id",
+      "bundleIdentifier": "com.maney.id.app",
       "supportsTablet": true,
       "buildNumber": "2.2.1",
       "config": {
-        "googleMobileAdsAppId": "your-admob-app-id",
+        "googleMobileAdsAppId": "<your-admob-app-id>",
         "googleSignIn": {
-          "reservedClientId": "your-reservedClientId"
+          "reservedClientId": "<your-reservedClientId>"
         }
       }
     },
     "android": {
-      "package": "your.package.bundle.id",
+      "package": "com.maney.id",
       "versionCode": 221,
       "permissions": [],
       "adaptiveIcon": {
@@ -38,10 +38,10 @@
         "backgroundColor": "#FFFFFF"
       },
       "config": {
-        "googleMobileAdsAppId": "your-admob-ads-id",
+        "googleMobileAdsAppId": "ca-app-pub-3178887708370866~1543494537",
         "googleSignIn": {
-          "apiKey": "your-apiKey",
-          "certificateHash": "your-certificateHash"
+          "apiKey": "AIzaSyAG5p7oELZQ5GW9PqgCXN57NnK-JXQO7C0",
+          "certificateHash": "8E:BF:B2:E8:C9:6A:5E:CC:AF:D0:CF:53:56:DC:1F:41:8F:CE:1F:36"
         }
       }
     },

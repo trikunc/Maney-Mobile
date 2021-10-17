@@ -43,6 +43,7 @@ import Text from "@elements/Text";
 import * as WebBrowser from "expo-web-browser";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Device from "expo-device";
+import {TEST} from "@env"
 
 const Login = memo(() => {
   const dispatch = useDispatch();
@@ -64,10 +65,10 @@ const Login = memo(() => {
   }, [policyCheck]);
 
   const onPolicy = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/policy");
+    WebBrowser.openBrowserAsync("https://codelink.ai/privacy-policy");
   };
   const onTerm = () => {
-    WebBrowser.openBrowserAsync("https://timivietnam.github.io/monsy/term");
+    WebBrowser.openBrowserAsync("https://codelink.ai/terms-conditions");
   };
 
   useEffect(() => {
@@ -94,8 +95,8 @@ const Login = memo(() => {
   const signInWithFacebookAsync = async () => {
     try {
       await Facebook.initializeAsync({
-        appId: "861336254618905",
-        appName: "Monsy",
+        appId: "303434604925026",
+        appName: "Maney-app",
       });
 
       const result = await Facebook.logInWithReadPermissionsAsync({
@@ -141,10 +142,11 @@ const Login = memo(() => {
 
   const signInWithGoogleAsync = async () => {
     try {
+      console.log('testing google', TEST)
       /*** MUST-CONFIG ***/
       const result = await Google.logInAsync({
-        androidClientId:
-          "",
+        androidClientId: 
+          "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
         iosClientId:
           "",
         iosStandaloneAppClientId:
@@ -153,6 +155,8 @@ const Login = memo(() => {
           "",
         scopes: ["profile"],
       });
+
+      // console.log('result_google:', result)
 
       if (result.type === "success") {
         setLoading(true);
@@ -172,7 +176,7 @@ const Login = memo(() => {
         const firebaseToken = await currentUser
           .getIdToken()
           .then((data) => data);
-
+        
         await checkLogin(firebaseToken);
 
         setLoading(false);
