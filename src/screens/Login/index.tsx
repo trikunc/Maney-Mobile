@@ -82,6 +82,7 @@ const Login = memo(() => {
         firebaseToken,
         isGuest: false,
       });
+    console.log("==checkUser:", user)
     await saveToken(token);
     await saveGuestFlag(false);
 
@@ -146,9 +147,10 @@ const Login = memo(() => {
       /*** MUST-CONFIG ***/
       const result = await Google.logInAsync({
         androidClientId: 
+          // "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
           "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
         iosClientId:
-          "",
+          "101439434856-3647gujq07bj4ufp9o8l1p8sou824jki.apps.googleusercontent.com",
         iosStandaloneAppClientId:
           "",
         androidStandaloneAppClientId:
@@ -156,7 +158,7 @@ const Login = memo(() => {
         scopes: ["profile"],
       });
 
-      // console.log('result_google:', result)
+      console.log('result_google:', result)
 
       if (result.type === "success") {
         setLoading(true);
@@ -166,6 +168,9 @@ const Login = memo(() => {
         const googleCredential =
           firebase.auth.GoogleAuthProvider.credential(idToken);
 
+      console.log('==googleCredential:', googleCredential)
+
+
         await firebase.auth().signInWithCredential(googleCredential);
 
         const currentUser = firebase.auth().currentUser;
@@ -173,9 +178,15 @@ const Login = memo(() => {
           return;
         }
 
+      console.log('==currentUser:', currentUser)
+
+
         const firebaseToken = await currentUser
           .getIdToken()
           .then((data) => data);
+
+      console.log('==firebaseToken:', firebaseToken)
+
         
         await checkLogin(firebaseToken);
 
@@ -371,7 +382,7 @@ const Login = memo(() => {
                 </Text>
               </Text>
             </TouchableOpacity>
-            <ButtonPrimaryIcon
+            {/* <ButtonPrimaryIcon
               disabled={!policyCheck}
               onPress={onLogInFacebook}
               style={styles.button}
@@ -380,7 +391,7 @@ const Login = memo(() => {
               iconLeft={LOGIN_SCREEN.facebook}
               underlayColor={colors.mayaBlue}
               title={"Login with Facebook"}
-            />
+            /> */}
             <ButtonPrimaryIcon
               disabled={!policyCheck}
               onPress={onLoginGoogle}
@@ -391,7 +402,7 @@ const Login = memo(() => {
               underlayColor={colors.monaLisa}
               title={"Login with Google"}
             />
-            {available && (
+            {/* {available && (
               <AppleAuthentication.AppleAuthenticationButton
                 buttonType={
                   AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
@@ -403,17 +414,8 @@ const Login = memo(() => {
                 style={styles.buttonApple}
                 onPress={policyCheck ? onLoginApple : alertCheckPolicy}
               />
-              // <ButtonPrimaryIcon
-              //   disabled={!policyCheck}
-              //   onPress={onLoginApple}
-              //   style={styles.button}
-              //   colorFocus={colors.black}
-              //   colorBlur={colors.grey1}
-              //   iconLeft={LOGIN_SCREEN.apple}
-              //   underlayColor={colors.timberGreen}
-              //   title={"Login with Apple"}
-              // />
-            )}
+
+            )} */}
             <ButtonPrimaryIcon
               onPress={policyCheck ? onLoginAsGuest : () => {}}
               style={styles.buttonSkip}
