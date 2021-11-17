@@ -371,7 +371,7 @@ const Login = memo(() => {
                 </Text>
               </Text>
             </TouchableOpacity>
-            <ButtonPrimaryIcon
+            {/* <ButtonPrimaryIcon
               disabled={!policyCheck}
               onPress={onLogInFacebook}
               style={styles.button}
@@ -380,7 +380,7 @@ const Login = memo(() => {
               iconLeft={LOGIN_SCREEN.facebook}
               underlayColor={colors.mayaBlue}
               title={"Login with Facebook"}
-            />
+            /> */}
             <ButtonPrimaryIcon
               disabled={!policyCheck}
               onPress={onLoginGoogle}

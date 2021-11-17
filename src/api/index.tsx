@@ -2,7 +2,7 @@ import { getToken } from "../utils/store/Store";
 
 /*** MUST-CONFIG ***/
 // export const SERVER_ADDRESS = "http://localhost:3000";
-export const SERVER_ADDRESS = "http://167.172.89.97:3000"; // expo go (real device)
+export const SERVER_ADDRESS = "http://3.135.210.216:3000"; // expo go (real device)
 
 export const BEARER = "Bearer";
 export const API_ENDPOINT = SERVER_ADDRESS + "/api/";
