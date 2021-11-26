@@ -95,7 +95,7 @@ const Login = memo(() => {
     try {
       await Facebook.initializeAsync({
         appId: "861336254618905",
-        appName: "Monsy",
+        appName: "Maney",
       });
 
       const result = await Facebook.logInWithReadPermissionsAsync({

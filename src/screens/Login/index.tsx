@@ -147,14 +147,13 @@ const Login = memo(() => {
       /*** MUST-CONFIG ***/
       const result = await Google.logInAsync({
         androidClientId: 
-          // "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
-          "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
+          "101439434856-kb1fivg7tpro4hh87v0qrujsfder6ga8.apps.googleusercontent.com",
         iosClientId:
-          "101439434856-3647gujq07bj4ufp9o8l1p8sou824jki.apps.googleusercontent.com",
+          "101439434856-tmp93mn3veet1c9hp7mcfmgqddudc9c7.apps.googleusercontent.com",
         iosStandaloneAppClientId:
-          "",
+          "101439434856-3647gujq07bj4ufp9o8l1p8sou824jki.apps.googleusercontent.com",
         androidStandaloneAppClientId:
-          "",
+          "101439434856-hv9ss8050mv6eoqnms8iu1du564lqhlo.apps.googleusercontent.com",
         scopes: ["profile"],
       });
 
@@ -201,7 +200,7 @@ const Login = memo(() => {
       console.log("DEBUG ERROR: Login Google ", e);
 
       // Handle error
-      Alert.alert("Login google failed");
+      Alert.alert("Login google failed", e);
       return { error: true };
     }
   };

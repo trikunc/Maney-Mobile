@@ -6,7 +6,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "build-ios": "expo build:ios",
+    "build-android": "expo build:android"
   },
   "jest": {
     "preset": "jest-expo"

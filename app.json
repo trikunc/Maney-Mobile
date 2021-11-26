@@ -25,13 +25,13 @@
       "config": {
         "googleMobileAdsAppId": "<your-admob-app-id>",
         "googleSignIn": {
-          "reservedClientId": "<your-reservedClientId>"
+          "reservedClientId": "com.googleusercontent.apps.101439434856-3647gujq07bj4ufp9o8l1p8sou824jki"
         }
       }
     },
     "android": {
       "package": "com.maney.id",
-      "versionCode": 221,
+      "versionCode": 224,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
@@ -40,8 +40,8 @@
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3178887708370866~1543494537",
         "googleSignIn": {
-          "apiKey": "AIzaSyAG5p7oELZQ5GW9PqgCXN57NnK-JXQO7C0",
-          "certificateHash": "8E:BF:B2:E8:C9:6A:5E:CC:AF:D0:CF:53:56:DC:1F:41:8F:CE:1F:36"
+          "apiKey": "AIzaSyDE80BF_pEX-HGtm2NFjVl0ghcTD8NAtUs",
+          "certificateHash": "729CCAE272EAD2F8EB4BBA518D99DFAB9824839B"
         }
       }
     },
